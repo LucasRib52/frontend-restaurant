@@ -359,6 +359,20 @@
   box-shadow: 0 1px 6px rgba(52,99,255,0.04);
 }
 
+.meus-pedidos-btn {
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  background: #3498db;
+  color: white;
+}
+
+.meus-pedidos-btn:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(52,99,255,0.12);
+}
+
 /* Card de horários */
 .horarios-card {
   background: #fff;
@@ -512,5 +526,45 @@
     font-size: 0.97rem;
     padding: 5px 7px;
     min-width: 70px;
+  }
+}
+
+.meus-pedidos-top-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.meus-pedidos-top-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #6c63ff 0%, #3498db 100%);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 16px rgba(52,99,255,0.13);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.5px;
+}
+.meus-pedidos-top-btn:hover {
+  background: linear-gradient(90deg, #3498db 0%, #6c63ff 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(52,99,255,0.18);
+}
+@media (max-width: 900px) {
+  .meus-pedidos-top-btn {
+    font-size: 1rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+  }
+  .meus-pedidos-top-btn-wrapper {
+    margin-bottom: 10px;
   }
 }

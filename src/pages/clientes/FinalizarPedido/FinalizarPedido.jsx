@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import pedidosService from '../../../services/clientes/pedidos';
 import './finalizarPedido.css';
 
 const FinalizarPedido = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
@@ -16,11 +17,31 @@ const FinalizarPedido = () => {
   const [error, setError] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [ultimoPedido, setUltimoPedido] = useState(null);
 
   useEffect(() => {
     const salvo = localStorage.getItem('carrinhoCliente');
     setItens(salvo ? JSON.parse(salvo) : []);
-  }, []);
+
+    // Carregar último pedido
+    const pedidosSalvos = localStorage.getItem('pedidosCliente');
+    if (pedidosSalvos) {
+      const pedidos = JSON.parse(pedidosSalvos);
+      if (pedidos.length > 0) {
+        setUltimoPedido(pedidos[pedidos.length - 1]);
+        // Se veio com ?usarUltimo=1, já preenche os campos
+        const params = new URLSearchParams(location.search);
+        if (params.get('usarUltimo') === '1') {
+          setFormData({
+            nome: pedidos[pedidos.length - 1].cliente.nome,
+            telefone: pedidos[pedidos.length - 1].cliente.telefone,
+            endereco: pedidos[pedidos.length - 1].cliente.endereco,
+            observacoes: ''
+          });
+        }
+      }
+    }
+  }, [location.search]);
 
   useEffect(() => {
     let timer;
@@ -37,6 +58,15 @@ const FinalizarPedido = () => {
       }, 1000);
     }
     return () => clearInterval(timer);
+  }, [showSuccess, navigate]);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        navigate('/clientes/meus-pedidos');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
   }, [showSuccess, navigate]);
 
   const handleChange = (e) => {
@@ -82,6 +112,17 @@ const FinalizarPedido = () => {
     }, 0);
   };
 
+  const usarDadosUltimoPedido = () => {
+    if (ultimoPedido) {
+      setFormData({
+        nome: ultimoPedido.cliente.nome,
+        telefone: ultimoPedido.cliente.telefone,
+        endereco: ultimoPedido.cliente.endereco,
+        observacoes: ''
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -108,6 +149,27 @@ const FinalizarPedido = () => {
       };
 
       await pedidosService.create(pedidoData);
+      
+      // Salvar pedido no histórico
+      const pedidosSalvos = localStorage.getItem('pedidosCliente');
+      const pedidos = pedidosSalvos ? JSON.parse(pedidosSalvos) : [];
+      pedidos.push({
+        data: new Date().toISOString(),
+        cliente: {
+          nome: formData.nome,
+          telefone: formData.telefone,
+          endereco: formData.endereco
+        },
+        status: 'pending',
+        itens: itens.map(item => ({
+          nome: item.nome || item.name,
+          quantidade: item.quantidade || 1,
+          preco: getPreco(item),
+          ingredientes: item.ingredientes || item.adicionais || []
+        }))
+      });
+      localStorage.setItem('pedidosCliente', JSON.stringify(pedidos));
+      
       localStorage.removeItem('carrinhoCliente');
       setShowSuccess(true);
     } catch (err) {
@@ -125,9 +187,10 @@ const FinalizarPedido = () => {
   if (showSuccess) {
     return (
       <div className="success-message">
-        <h3>✨ Pedido Finalizado!</h3>
+        <div className="success-icon">✨</div>
+        <h3>Pedido Finalizado!</h3>
         <p>Seu pedido foi recebido com sucesso e está sendo processado. Em breve você receberá uma confirmação.</p>
-        <p>Redirecionando em <span className="countdown">{countdown}</span> segundos...</p>
+        <p>Redirecionando para <b>Meus Pedidos</b>...</p>
       </div>
     );
   }
@@ -137,67 +200,103 @@ const FinalizarPedido = () => {
       <div className="finalizar-pedido-header">
         <h2>Finalizar Pedido</h2>
       </div>
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <span role="img" aria-label="error">⚠️</span>
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="finalizar-pedido-form">
         <div className="finalizar-pedido-section">
           <h3>Seus Dados</h3>
-          <label htmlFor="nome" className="finalizar-pedido-label">Nome Completo</label>
-          <input
-            type="text"
-            id="nome"
-            name="nome"
-            className="finalizar-pedido-input"
-            value={formData.nome}
-            onChange={handleChange}
-            required
-            placeholder="Digite seu nome completo"
-          />
-          <label htmlFor="telefone" className="finalizar-pedido-label">Telefone</label>
-          <input
-            type="text"
-            id="telefone"
-            name="telefone"
-            className="finalizar-pedido-input"
-            value={formData.telefone}
-            onChange={handleTelefoneChange}
-            required
-            placeholder="(00) 00000-0000"
-          />
+          {ultimoPedido && (
+            <button 
+              type="button" 
+              className="usar-dados-anteriores-btn"
+              onClick={usarDadosUltimoPedido}
+            >
+              <span role="img" aria-label="reuse">🔄</span> Usar dados do último pedido
+            </button>
+          )}
+          <div className="input-group">
+            <label htmlFor="nome" className="finalizar-pedido-label">
+              <span role="img" aria-label="user">👤</span> Nome Completo
+            </label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              className="finalizar-pedido-input"
+              value={formData.nome}
+              onChange={handleChange}
+              required
+              placeholder="Digite seu nome completo"
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="telefone" className="finalizar-pedido-label">
+              <span role="img" aria-label="phone">📱</span> Telefone
+            </label>
+            <input
+              type="text"
+              id="telefone"
+              name="telefone"
+              className="finalizar-pedido-input"
+              value={formData.telefone}
+              onChange={handleTelefoneChange}
+              required
+              placeholder="(00) 00000-0000"
+            />
+          </div>
         </div>
+
         <div className="finalizar-pedido-section">
           <h3>Endereço de Entrega</h3>
-          <label htmlFor="endereco" className="finalizar-pedido-label">Endereço Completo</label>
-          <input
-            type="text"
-            id="endereco"
-            name="endereco"
-            className="finalizar-pedido-input"
-            value={formData.endereco}
-            onChange={handleChange}
-            required
-            placeholder="Rua, número, bairro, complemento"
-          />
+          <div className="input-group">
+            <label htmlFor="endereco" className="finalizar-pedido-label">
+              <span role="img" aria-label="location">📍</span> Endereço Completo
+            </label>
+            <input
+              type="text"
+              id="endereco"
+              name="endereco"
+              className="finalizar-pedido-input"
+              value={formData.endereco}
+              onChange={handleChange}
+              required
+              placeholder="Rua, número, bairro, complemento"
+            />
+          </div>
         </div>
+
         <div className="finalizar-pedido-section">
           <h3>Observações</h3>
-          <label htmlFor="observacoes" className="finalizar-pedido-label">Observações</label>
-          <textarea
-            id="observacoes"
-            name="observacoes"
-            className="finalizar-pedido-input"
-            value={formData.observacoes}
-            onChange={handleChange}
-            placeholder="Alguma observação sobre o pedido?"
-            rows="3"
-          />
+          <div className="input-group">
+            <label htmlFor="observacoes" className="finalizar-pedido-label">
+              <span role="img" aria-label="note">📝</span> Observações
+            </label>
+            <textarea
+              id="observacoes"
+              name="observacoes"
+              className="finalizar-pedido-input"
+              value={formData.observacoes}
+              onChange={handleChange}
+              placeholder="Alguma observação sobre o pedido?"
+              rows="3"
+            />
+          </div>
         </div>
+
         <div className="finalizar-pedido-resumo">
-          <h4>Resumo do Pedido</h4>
+          <h4>
+            <span role="img" aria-label="cart">🛒</span> Resumo do Pedido
+          </h4>
           <ul className="finalizar-pedido-resumo-lista">
             {itens.map((item, index) => (
               <li key={index}>
-                <span>{item.nome || item.name} x{item.quantidade}</span>
-                <span>R$ {(getPreco(item) * (item.quantidade || 1)).toFixed(2)}</span>
+                <span className="item-name">{item.nome || item.name}</span>
+                <span className="item-quantity">x{item.quantidade}</span>
+                <span className="item-price">R$ {(getPreco(item) * (item.quantidade || 1)).toFixed(2)}</span>
               </li>
             ))}
           </ul>
@@ -206,22 +305,32 @@ const FinalizarPedido = () => {
             <span>R$ {calcularTotal().toFixed(2)}</span>
           </div>
         </div>
-        <button type="submit" className="finalizar-pedido-btn" disabled={loading}>
-          {loading ? 'Finalizando...' : 'Finalizar Pedido'}
+
+        <button 
+          type="submit" 
+          className="finalizar-pedido-btn" 
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <span className="loading-spinner"></span>
+              Finalizando...
+            </>
+          ) : (
+            <>
+              <span role="img" aria-label="check">✅</span>
+              Finalizar Pedido
+            </>
+          )}
         </button>
+
         <button 
           type="button" 
-          className="finalizar-pedido-btn" 
-          style={{
-            background: '#f4f8fb', 
-            color: '#23408e', 
-            marginTop: 10, 
-            fontWeight: 600,
-            boxShadow: '0 4px 16px rgba(37,99,235,0.08)'
-          }} 
+          className="finalizar-pedido-btn voltar-btn" 
           onClick={handleVoltar} 
           disabled={loading}
         >
+          <span role="img" aria-label="back">⬅️</span>
           Voltar
         </button>
       </form>

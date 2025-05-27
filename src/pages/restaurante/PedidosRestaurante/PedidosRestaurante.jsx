@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import pedidosRestauranteService from '../../../services/pedidosrestaurante';
-import { MdCheck, MdClose, MdPrint, MdRemoveRedEye, MdFastfood, MdAccessTime, MdDone, MdCancel, MdDeliveryDining, MdFilterList } from 'react-icons/md';
+import { MdCheck, MdClose, MdPrint, MdRemoveRedEye, MdFastfood, MdAccessTime, MdDone, MdCancel, MdDeliveryDining, MdFilterList, MdSchedule } from 'react-icons/md';
 import './pedidosRestaurante.css';
 
 const statusLabels = {
@@ -21,19 +21,26 @@ const statusIcons = {
 };
 
 const quickFilters = [
-  { label: 'Todos', value: 'all' },
-  { label: 'Hoje', value: 'today' },
-  { label: 'Pendentes', value: 'pending' },
-  { label: 'Em preparo', value: 'preparing' },
-  { label: 'Prontos', value: 'ready' },
-  { label: 'Entregues', value: 'delivered' },
-  { label: 'Cancelados', value: 'cancelled' },
+  { label: 'Todos', value: 'all', icon: <MdFilterList /> },
+  { label: 'Últimas 24h', value: 'last24h', icon: <MdSchedule /> },
+  { label: 'Pendentes', value: 'pending', icon: <MdAccessTime /> },
+  { label: 'Em preparo', value: 'preparing', icon: <MdFastfood /> },
+  { label: 'Prontos', value: 'ready', icon: <MdDone /> },
+  { label: 'Entregues', value: 'delivered', icon: <MdDeliveryDining /> },
+  { label: 'Cancelados', value: 'cancelled', icon: <MdCancel /> },
 ];
 
 function isToday(dateString) {
   const d = new Date(dateString);
   const now = new Date();
   return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+function isLast24Hours(dateString) {
+  const d = new Date(dateString);
+  const now = new Date();
+  const diffInHours = (now - d) / (1000 * 60 * 60);
+  return diffInHours <= 24;
 }
 
 const PedidosRestaurante = () => {
@@ -43,7 +50,8 @@ const PedidosRestaurante = () => {
   const [updating, setUpdating] = useState(null);
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [filter, setFilter] = useState('today');
+  const [filter, setFilter] = useState('last24h');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchPedidos();
@@ -102,23 +110,32 @@ const PedidosRestaurante = () => {
     if (pedido.items && Array.isArray(pedido.items)) {
       pedido.items.forEach((item, index) => {
         // Nome do item com quantidade se for maior que 1
+        const nomeProduto = item.product_name.toUpperCase();
         const itemLine = item.quantity > 1 
-          ? `${index + 1}. ${item.product_name} (${item.quantity}x)`
-          : `${index + 1}. ${item.product_name}`;
+          ? `${index + 1}. ***${nomeProduto}*** (${item.quantity}x)`
+          : `${index + 1}. ***${nomeProduto}***`;
         linhas.push(itemLine);
 
-        // Ingredientes na mesma linha
+        // Ingredientes agrupados por grupo
         if (item.ingredients && item.ingredients.length > 0) {
-          const ingredientes = item.ingredients
-            .map(ing => ing.ingredient.name)
-            .join(', ');
-          linhas.push(`   - ${ingredientes}`);
+          const grupos = item.ingredients.reduce((acc, ing) => {
+            const group = ing.ingredient.category?.name || 'Outros';
+            if (!acc[group]) acc[group] = [];
+            acc[group].push(ing.ingredient.name);
+            return acc;
+          }, {});
+          Object.entries(grupos).forEach(([grupo, ings]) => {
+            linhas.push(`   - ${grupo}: ${ings.join(', ')}`);
+          });
         }
 
         // Observações
         if (item.notes) {
           linhas.push(`   Obs: ${item.notes}`);
         }
+
+        // Linha em branco entre itens
+        linhas.push('');
       });
     }
 
@@ -143,7 +160,7 @@ const PedidosRestaurante = () => {
   // Filtro dos pedidos
   const filteredPedidos = pedidos.filter(pedido => {
     if (filter === 'all') return true;
-    if (filter === 'today') return isToday(pedido.created_at);
+    if (filter === 'last24h') return isLast24Hours(pedido.created_at);
     return pedido.status === filter;
   });
 
@@ -189,14 +206,24 @@ const PedidosRestaurante = () => {
               </>
             )}
             {pedido.status === 'preparing' && (
-              <button className="pedido-card-btn pronto" onClick={() => handleStatusUpdate(pedido.id, 'ready')} disabled={updating === pedido.id} title="Marcar como Pronto">
-                <MdDone style={{marginRight:6}}/> Pronto
-              </button>
+              <>
+                <button className="pedido-card-btn pronto" onClick={() => handleStatusUpdate(pedido.id, 'ready')} disabled={updating === pedido.id} title="Marcar como Pronto">
+                  <MdDone style={{marginRight:6}}/> Pronto
+                </button>
+                <button className="pedido-card-btn imprimir" onClick={() => imprimirViaRawBT(pedido)} title="Imprimir">
+                  <MdPrint style={{marginRight:6}}/> Imprimir
+                </button>
+              </>
             )}
             {pedido.status === 'ready' && (
-              <button className="pedido-card-btn entregue" onClick={() => handleStatusUpdate(pedido.id, 'delivered')} disabled={updating === pedido.id} title="Marcar como Entregue">
-                <MdDeliveryDining style={{marginRight:6}}/> Entregue
-              </button>
+              <>
+                <button className="pedido-card-btn entregue" onClick={() => handleStatusUpdate(pedido.id, 'delivered')} disabled={updating === pedido.id} title="Marcar como Entregue">
+                  <MdDeliveryDining style={{marginRight:6}}/> Entregue
+                </button>
+                <button className="pedido-card-btn imprimir" onClick={() => imprimirViaRawBT(pedido)} title="Imprimir">
+                  <MdPrint style={{marginRight:6}}/> Imprimir
+                </button>
+              </>
             )}
             <button className="pedido-card-btn visualizar" onClick={() => { setSelectedPedido(pedido); setShowModal(true); }} title="Visualizar Detalhes">
               <MdRemoveRedEye />
@@ -247,8 +274,17 @@ const PedidosRestaurante = () => {
                     <div className="item-ingredients">
                       <p>Ingredientes:</p>
                       <ul>
-                        {item.ingredients.map(ing => (
-                          <li key={ing.id}>{ing.ingredient.name}</li>
+                        {Object.entries(
+                          item.ingredients.reduce((acc, ing) => {
+                            const group = ing.ingredient.category?.name || 'Outros';
+                            if (!acc[group]) acc[group] = [];
+                            acc[group].push(ing.ingredient.name);
+                            return acc;
+                          }, {})
+                        ).map(([group, ings]) => (
+                          <li key={group}>
+                            <strong>{group}:</strong> {ings.join(', ')}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -268,26 +304,36 @@ const PedidosRestaurante = () => {
     );
   };
 
+  const renderFilterButtons = () => (
+    <div className="filter-container">
+      <button 
+        className="filter-toggle-btn"
+        onClick={() => setShowFilters(!showFilters)}
+      >
+        <MdFilterList /> Filtros
+      </button>
+      <div className={`filter-buttons ${showFilters ? 'show' : ''}`}>
+        {quickFilters.map(({ label, value, icon }) => (
+          <button
+            key={value}
+            className={`filter-btn ${filter === value ? 'active' : ''}`}
+            onClick={() => {
+              setFilter(value);
+              setShowFilters(false);
+            }}
+          >
+            {icon} {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="pedidos-restaurante-container">
       <div className="pedidos-restaurante-header">
         <h1>Pedidos</h1>
-        <button className="btn-atualizar" onClick={fetchPedidos} disabled={loading}>
-          {loading ? 'Atualizando...' : 'Atualizar'}
-        </button>
-      </div>
-      {/* Filtros rápidos */}
-      <div className="pedidos-quick-filters">
-        <MdFilterList style={{marginRight:8, color:'#3498db', fontSize:'1.3em', verticalAlign:'middle'}} />
-        {quickFilters.map(f => (
-          <button
-            key={f.value}
-            className={`quick-filter-btn${filter === f.value ? ' selected' : ''}`}
-            onClick={() => setFilter(f.value)}
-          >
-            {f.label}
-          </button>
-        ))}
+        {renderFilterButtons()}
       </div>
       {error && <div className="pedidos-restaurante-error">{error}</div>}
       {loading ? (

@@ -4,191 +4,286 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeInModal 0.3s;
-}
-@keyframes fadeInModal {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  backdrop-filter: blur(8px);
 }
 
 .personalizar-modal {
-  background: #fff;
-  border-radius: 18px;
-  width: 96%;
-  max-width: 420px;
-  max-height: 92vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 8px 40px rgba(37,99,235,0.13);
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  animation: slideUpModal 0.3s;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.3s ease;
 }
-@keyframes slideUpModal {
-  from { transform: translateY(40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .personalizar-modal__header {
-  padding: 1.2rem 1.5rem 1.2rem 1.5rem;
-  border-bottom: 1.5px solid #eaf6ff;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  background: #fff;
-  z-index: 2;
 }
+
 .personalizar-modal__header h2 {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #23408e;
-  font-family: 'Montserrat', Arial, sans-serif;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
+
 .personalizar-modal__fechar {
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 1.5rem;
+  color: #666;
   cursor: pointer;
   padding: 0.5rem;
-  color: #aaa;
-  transition: color 0.2s;
+  line-height: 1;
+  border-radius: 50%;
+  transition: all 0.2s;
 }
+
 .personalizar-modal__fechar:hover {
-  color: #23408e;
+  background: #f8f9fa;
+  color: #333;
 }
 
 .personalizar-modal__body {
-  padding: 1.2rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .personalizar-modal__grupo {
-  margin-bottom: 0.5rem;
-}
-.personalizar-modal__grupo h4 {
-  margin: 0 0 0.5rem 0;
-  color: #23408e;
-  font-size: 1.08rem;
-  font-weight: 700;
+  margin-bottom: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
 }
 
-.personalizar-modal__opcao {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f4f8fb;
+.personalizar-modal__grupo-header {
+  margin-bottom: 1rem;
 }
-.personalizar-modal__opcao label {
-  flex: 1;
+
+.personalizar-modal__grupo-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #333;
-  font-size: 1.01rem;
+}
+
+.personalizar-modal__grupo-info {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.grupo-obrigatorio {
+  color: #e74c3c;
   font-weight: 500;
 }
 
-.personalizar-modal__quantidade {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.personalizar-modal__quantidade button {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid #eaf6ff;
-  background: #f4f8fb;
-  color: #23408e;
-  font-weight: 700;
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s, color 0.2s, border 0.2s;
-}
-.personalizar-modal__quantidade button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #f4f8fb;
-  color: #bbb;
-}
-.personalizar-modal__quantidade span {
-  min-width: 28px;
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #23408e;
-}
-
-.personalizar-modal__footer {
-  padding: 1.2rem 1.5rem;
-  border-top: 1.5px solid #eaf6ff;
-  display: flex;
-  justify-content: center;
-  background: #fff;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-}
-.personalizar-modal__adicionar {
-  background-color: #23408e;
-  color: white;
-  border: none;
-  padding: 1rem 0;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 1.13rem;
-  font-weight: 800;
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-  transition: background 0.2s, transform 0.2s;
-}
-.personalizar-modal__adicionar:hover:not(:disabled) {
-  background-color: #1a2e5b;
-  transform: scale(1.03);
-}
-.personalizar-modal__adicionar:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.grupo-quantidade {
+  color: #3498db;
+  font-weight: 500;
 }
 
 .obrigatorio {
   color: #e74c3c;
+  font-weight: bold;
   margin-left: 0.25rem;
-  font-size: 1.1em;
 }
 
-@media (max-width: 600px) {
+.personalizar-modal__opcao {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s;
+}
+
+.personalizar-modal__opcao:hover {
+  background: #f1f5f9;
+}
+
+.ingrediente-imagem {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f4f8fb;
+}
+
+.ingrediente-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ingrediente-nome {
+  font-weight: 600;
+  color: #23408e;
+  font-size: 1.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ingrediente-descricao {
+  color: #888;
+  font-size: 0.93em;
+  margin-top: 0.25rem;
+}
+
+.ingrediente-preco {
+  color: #28a745;
+  font-weight: 500;
+  font-size: 0.97em;
+  margin-top: 0.25rem;
+}
+
+.ingrediente-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: #23408e;
+  cursor: pointer;
+}
+
+.personalizar-modal__footer {
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  background: white;
+  border-radius: 0 0 20px 20px;
+}
+
+.personalizar-modal__adicionar {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+}
+
+.personalizar-modal__adicionar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+  background: linear-gradient(135deg, #2980b9 0%, #2471a3 100%);
+}
+
+.personalizar-modal__adicionar:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
   .personalizar-modal {
-    max-width: 99vw;
-    border-radius: 8px;
-    padding: 0;
+    width: 95%;
+    max-height: 95vh;
   }
-  .personalizar-modal__header,
-  .personalizar-modal__body,
-  .personalizar-modal__footer {
-    padding-left: 0.7rem;
-    padding-right: 0.7rem;
+
+  .personalizar-modal__header {
+    padding: 1rem;
   }
+
   .personalizar-modal__header h2 {
-    font-size: 1.01rem;
+    font-size: 1.3rem;
   }
+
+  .personalizar-modal__body {
+    padding: 1rem;
+  }
+
+  .personalizar-modal__grupo {
+    padding: 0.75rem;
+  }
+
+  .personalizar-modal__opcao {
+    padding: 0.5rem;
+  }
+
+  .personalizar-modal__footer {
+    padding: 1rem;
+  }
+
   .personalizar-modal__adicionar {
+    padding: 0.875rem;
     font-size: 1rem;
-    border-radius: 8px;
-    padding: 0.8rem 0;
   }
+}
+
+@media (max-width: 480px) {
+  .personalizar-modal__grupo-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ingrediente-nome {
+    font-size: 1em;
+  }
+
+  .ingrediente-descricao,
+  .ingrediente-preco {
+    font-size: 0.9em;
+  }
+}
+
+/* Checkbox com visual de radio (bolinha) */
+.radio-style {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid #b6d6f6;
+  border-radius: 50%;
+  background: #fff;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: border 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 4px #e3eaf5;
+  display: inline-block;
+}
+.radio-style:checked {
+  border: 7px solid #3498db;
+  background: #fff;
+}
+.radio-style:focus {
+  box-shadow: 0 0 0 3px #3498db33;
+  border-color: #3498db;
+}
+.radio-style:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 } 

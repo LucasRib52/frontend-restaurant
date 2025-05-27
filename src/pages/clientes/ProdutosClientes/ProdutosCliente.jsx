@@ -3,7 +3,7 @@ import './produtoCliente.css';
 import PersonalizarProdutoModal from './PersonalizarProduto/PersonalizarProdutoModal';
 import { produtosClienteService } from '../../../services/clientes/produtosCliente';
 
-const ProdutosCliente = ({ onAdicionarAoCarrinho }) => {
+const ProdutosCliente = ({ onAdicionarAoCarrinho, abertoAgora }) => {
   const [categoriaAtual, setCategoriaAtual] = useState('todos');
   const [modalAberto, setModalAberto] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
@@ -11,6 +11,7 @@ const ProdutosCliente = ({ onAdicionarAoCarrinho }) => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFechadoModal, setShowFechadoModal] = useState(false);
 
   // Função para formatar o preço
   const formatarPreco = (preco) => {
@@ -71,6 +72,10 @@ const ProdutosCliente = ({ onAdicionarAoCarrinho }) => {
   }, [categoriaAtual]);
 
   const handleAbrirModal = (produto) => {
+    if (!abertoAgora) {
+      setShowFechadoModal(true);
+      return;
+    }
     setProdutoSelecionado(produto);
     setModalAberto(true);
   };
@@ -79,6 +84,8 @@ const ProdutosCliente = ({ onAdicionarAoCarrinho }) => {
     setModalAberto(false);
     setProdutoSelecionado(null);
   };
+
+  const handleFecharFechadoModal = () => setShowFechadoModal(false);
 
   const handleAdicionarPersonalizado = (produtoPersonalizado) => {
     onAdicionarAoCarrinho(produtoPersonalizado);
@@ -138,6 +145,15 @@ const ProdutosCliente = ({ onAdicionarAoCarrinho }) => {
         onFechar={handleFecharModal}
         onAdicionar={handleAdicionarPersonalizado}
       />
+      {showFechadoModal && (
+        <div className="modal-fechado-overlay">
+          <div className="modal-fechado-content">
+            <h3>Restaurante Fechado</h3>
+            <p>O restaurante está fechado no momento.<br/>Só é possível fazer pedidos quando estiver aberto.</p>
+            <button className="modal-fechado-btn" onClick={handleFecharFechadoModal}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

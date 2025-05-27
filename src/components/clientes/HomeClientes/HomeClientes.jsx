@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './homeclientes.css';
 import ProdutosCliente from '../../../pages/clientes/ProdutosClientes/ProdutosCliente';
 import CarrinhoCliente from '../../../pages/clientes/CarrinhoClientes/CarrinhoCliente';
 import configuracaoRestauranteService from '../../../services/configuracaorestaurante';
-import { MdLocationOn, MdPhone, MdEmail, MdLocalShipping, MdHolidayVillage, MdAccessTime, MdCheckCircle, MdCancel } from 'react-icons/md';
+import { MdLocationOn, MdPhone, MdEmail, MdLocalShipping, MdAccessTime, MdCheckCircle, MdCancel, MdReceipt } from 'react-icons/md';
 
 const DIAS_SEMANA = {
   0: 'Segunda',
@@ -19,6 +19,7 @@ const DIAS_SEMANA = {
 const HomeClientes = () => {
   const [configuracao, setConfiguracao] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const isCartPage = location.pathname === '/clientes/carrinho';
 
   useEffect(() => {
@@ -108,6 +109,14 @@ const HomeClientes = () => {
     <div className="home-clientes-container">
       {/* Novo header tipo cardápio digital */}
       <header className="home-clientes-header-modern">
+        <div className="meus-pedidos-top-btn-wrapper">
+          <button 
+            className="meus-pedidos-top-btn" 
+            onClick={() => navigate('/clientes/meus-pedidos')}
+          >
+            <MdReceipt style={{marginRight: 8, fontSize: 22}}/> Meus Pedidos
+          </button>
+        </div>
         <div className="header-main-row">
           {configuracao?.business_photo && (
             <img 
@@ -158,7 +167,7 @@ const HomeClientes = () => {
       {/* Área principal do cardápio */}
       <main className="home-clientes-cardapio">
         <h2 className="home-clientes-cardapio__titulo">Cardápio</h2>
-        <ProdutosCliente onAdicionarAoCarrinho={adicionarAoCarrinho} />
+        <ProdutosCliente onAdicionarAoCarrinho={adicionarAoCarrinho} abertoAgora={abertoAgora} />
       </main>
       {/* Carrinho de compras - só mostra se não estiver na página do carrinho */}
       {!isCartPage && (

@@ -68,7 +68,6 @@ const ProdutoRestaurante = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Validate required fields
       if (!produtoAtual.name || !produtoAtual.category || !produtoAtual.price || !produtoAtual.description) {
         setError('Por favor, preencha todos os campos obrigatórios');
         return;
@@ -81,26 +80,21 @@ const ProdutoRestaurante = () => {
       data.append('description', produtoAtual.description.trim());
       data.append('is_active', true);
       
-      // Validar e adicionar a imagem
       if (produtoAtual.image && produtoAtual.image instanceof File) {
-        // Verificar se é uma imagem válida
         if (!produtoAtual.image.type || !produtoAtual.image.type.startsWith('image/')) {
           setError('Por favor, selecione um arquivo de imagem válido');
           return;
         }
-        // Verificar o tamanho da imagem (máximo 5MB)
         if (produtoAtual.image.size > 5 * 1024 * 1024) {
           setError('A imagem deve ter no máximo 5MB');
           return;
         }
-        // Renomear o arquivo para garantir que tenha uma extensão válida
         const fileExtension = produtoAtual.image.name.split('.').pop().toLowerCase();
         const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
         if (!validExtensions.includes(fileExtension)) {
           setError('Por favor, selecione uma imagem nos formatos: JPG, JPEG, PNG ou GIF');
           return;
         }
-        // Criar um novo arquivo com o nome correto
         const newFile = new File([produtoAtual.image], `product_image.${fileExtension}`, {
           type: produtoAtual.image.type
         });
@@ -114,41 +108,25 @@ const ProdutoRestaurante = () => {
             data.append(`ingredients[${ingredientIndex}]`, JSON.stringify({
               name: ing.name.trim(),
               category: group.groupName.trim(),
-              isRequired: false,
-              maxQuantity: parseInt(ing.maxQuantity) || 1
+              isRequired: group.isRequired,
+              maxQuantity: group.maxQuantity
             }));
             ingredientIndex++;
           }
         });
       });
 
-      // Debug: Mostrar o que está sendo enviado
-      console.log('Dados sendo enviados:');
-      for (let pair of data.entries()) {
-        if (pair[0] === 'image') {
-          console.log('image:', pair[1].name, pair[1].type, pair[1].size);
-        } else {
-          console.log(pair[0] + ': ' + pair[1]);
-        }
-      }
-
       if (produtoAtual.id) {
         await produtosRestauranteService.update(produtoAtual.id, data, true);
       } else {
-        const response = await produtosRestauranteService.create(data, true);
-        console.log('Resposta do servidor:', response);
+        await produtosRestauranteService.create(data, true);
       }
       setModalOpen(false);
       await fetchProdutos();
       setError(null);
     } catch (err) {
       console.error('Erro ao salvar produto:', err);
-      console.error('Detalhes do erro:', err.response?.data);
-      if (err.response?.data?.image) {
-        setError(err.response.data.image[0]);
-      } else {
-        setError(err.response?.data?.message || 'Erro ao salvar produto. Verifique os dados e tente novamente.');
-      }
+      setError(err.response?.data?.message || 'Erro ao salvar produto. Verifique os dados e tente novamente.');
     }
   };
 
@@ -171,17 +149,18 @@ const ProdutoRestaurante = () => {
         ingredientes.forEach((item) => {
           const groupName = item.ingredient.category?.name || 'Sem grupo';
           if (!groupMap[groupName]) {
-            groupMap[groupName] = [];
+            groupMap[groupName] = {
+              groupName,
+              isRequired: item.is_required ?? false,
+              maxQuantity: item.max_quantity ?? 1,
+              ingredients: []
+            };
           }
-          groupMap[groupName].push({
-            name: item.ingredient.name,
-            maxQuantity: item.max_quantity
+          groupMap[groupName].ingredients.push({
+            name: item.ingredient.name
           });
         });
-        ingredientGroups = Object.entries(groupMap).map(([groupName, ingredients]) => ({
-          groupName,
-          ingredients
-        }));
+        ingredientGroups = Object.values(groupMap);
       }
       setProdutoAtual({
         id: produto.id,
@@ -214,33 +193,30 @@ const ProdutoRestaurante = () => {
     setConfirmDelete({ open: false, id: null, name: '' });
   };
 
-  // Funções para manipular grupos e ingredientes
   const addGroup = () => {
     setProdutoAtual({
       ...produtoAtual,
       ingredientGroups: [
         ...produtoAtual.ingredientGroups,
-        { groupName: '', ingredients: [{ name: '', maxQuantity: 1 }] }
+        { 
+          groupName: '', 
+          isRequired: false,
+          maxQuantity: 1,
+          ingredients: [{ name: '' }] 
+        }
       ]
     });
   };
 
-  const removeGroup = (groupIdx) => {
-    setProdutoAtual({
-      ...produtoAtual,
-      ingredientGroups: produtoAtual.ingredientGroups.filter((_, idx) => idx !== groupIdx)
-    });
-  };
-
-  const handleGroupChange = (groupIdx, value) => {
+  const handleGroupChange = (groupIdx, field, value) => {
     const newGroups = [...produtoAtual.ingredientGroups];
-    newGroups[groupIdx].groupName = value;
+    newGroups[groupIdx][field] = value;
     setProdutoAtual({ ...produtoAtual, ingredientGroups: newGroups });
   };
 
   const addIngredient = (groupIdx) => {
     const newGroups = [...produtoAtual.ingredientGroups];
-    newGroups[groupIdx].ingredients.push({ name: '', maxQuantity: 1 });
+    newGroups[groupIdx].ingredients.push({ name: '' });
     setProdutoAtual({ ...produtoAtual, ingredientGroups: newGroups });
   };
 
@@ -250,22 +226,19 @@ const ProdutoRestaurante = () => {
     setProdutoAtual({ ...produtoAtual, ingredientGroups: newGroups });
   };
 
-  const handleIngredientChange = (groupIdx, ingIdx, field, value) => {
+  const handleIngredientChange = (groupIdx, ingIdx, value) => {
     const newGroups = [...produtoAtual.ingredientGroups];
-    newGroups[groupIdx].ingredients[ingIdx][field] = value;
+    newGroups[groupIdx].ingredients[ingIdx].name = value;
     setProdutoAtual({ ...produtoAtual, ingredientGroups: newGroups });
   };
 
-  // Função para lidar com a seleção de imagem
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Verificar se é uma imagem válida
       if (!file.type.startsWith('image/')) {
         setError('Por favor, selecione um arquivo de imagem válido');
         return;
       }
-      // Verificar o tamanho da imagem (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError('A imagem deve ter no máximo 5MB');
         return;
@@ -274,12 +247,18 @@ const ProdutoRestaurante = () => {
     }
   };
 
+  const removeGroup = (groupIdx) => {
+    setProdutoAtual({
+      ...produtoAtual,
+      ingredientGroups: produtoAtual.ingredientGroups.filter((_, idx) => idx !== groupIdx)
+    });
+  };
+
   const filteredProdutos = produtos
     .filter(produto => {
       const matchesSearch = produto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           produto.description.toLowerCase().includes(searchTerm.toLowerCase());
       
-      // Debug para verificar os valores
       console.log('Produto:', produto.name);
       console.log('Categoria do produto:', produto.category);
       console.log('Categoria selecionada:', selectedCategory);
@@ -516,62 +495,83 @@ const ProdutoRestaurante = () => {
               <div className="ingredient-groups">
                 <h3>Grupos de Ingredientes</h3>
                 {produtoAtual.ingredientGroups.map((group, groupIdx) => (
-                  <div key={groupIdx} className="ingredient-group">
+                  <div key={groupIdx} className="ingredient-group modern-card">
                     <div className="group-header">
                       <input
                         type="text"
+                        className="group-name-input"
                         value={group.groupName}
-                        onChange={(e) => handleGroupChange(groupIdx, e.target.value)}
+                        onChange={(e) => handleGroupChange(groupIdx, 'groupName', e.target.value)}
                         placeholder="Nome do grupo"
                       />
-                      <button
-                        type="button"
-                        className="btn-delete"
-                        onClick={() => removeGroup(groupIdx)}
-                      >
-                        <MdRemoveCircleOutline size={20} />
-                      </button>
-                    </div>
-
-                    {group.ingredients.map((ing, ingIdx) => (
-                      <div key={ingIdx} className="ingredient-item">
-                        <input
-                          type="text"
-                          value={ing.name}
-                          onChange={(e) => handleIngredientChange(groupIdx, ingIdx, 'name', e.target.value)}
-                          placeholder="Nome do ingrediente"
-                        />
-                        <input
-                          type="number"
-                          value={ing.maxQuantity}
-                          onChange={(e) => handleIngredientChange(groupIdx, ingIdx, 'maxQuantity', e.target.value)}
-                          placeholder="Máx"
-                          min="1"
-                        />
+                      <div className="group-controls">
+                        <div className="group-required">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={group.isRequired}
+                              onChange={(e) => handleGroupChange(groupIdx, 'isRequired', e.target.checked)}
+                            />
+                            Obrigatório
+                          </label>
+                        </div>
+                        <div className="group-quantity">
+                          <label>
+                            Escolha até:
+                            <select
+                              value={group.maxQuantity}
+                              onChange={(e) => handleGroupChange(groupIdx, 'maxQuantity', parseInt(e.target.value))}
+                              className="max-quantity-select"
+                            >
+                              {[...Array(10)].map((_, i) => (
+                                <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'item' : 'itens'}</option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
                         <button
                           type="button"
-                          className="btn-delete"
-                          onClick={() => removeIngredient(groupIdx, ingIdx)}
+                          className="btn-delete group-remove-btn"
+                          onClick={() => removeGroup(groupIdx)}
+                          title="Remover grupo"
                         >
-                          <MdRemoveCircleOutline size={20} />
+                          <MdRemoveCircleOutline size={22} />
                         </button>
                       </div>
-                    ))}
-
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={() => addIngredient(groupIdx)}
-                    >
-                      <MdAdd size={20} />
-                      Adicionar Ingrediente
-                    </button>
+                    </div>
+                    <div className="ingredients-list">
+                      {group.ingredients.map((ing, ingIdx) => (
+                        <div key={ingIdx} className="ingredient-item modern-ingredient-item">
+                          <input
+                            type="text"
+                            className="ingredient-name-input"
+                            value={ing.name}
+                            onChange={(e) => handleIngredientChange(groupIdx, ingIdx, e.target.value)}
+                            placeholder="Nome do ingrediente"
+                          />
+                          <button
+                            type="button"
+                            className="btn-delete ingredient-remove-btn"
+                            onClick={() => removeIngredient(groupIdx, ingIdx)}
+                            title="Remover ingrediente"
+                          >
+                            <MdRemoveCircleOutline size={20} />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="btn-add modern-btn-add"
+                        onClick={() => addIngredient(groupIdx)}
+                      >
+                        <MdAdd size={20} /> Adicionar Ingrediente
+                      </button>
+                    </div>
                   </div>
                 ))}
-
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="btn-secondary modern-btn-secondary"
                   onClick={addGroup}
                 >
                   <MdAdd size={20} />

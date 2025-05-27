@@ -691,3 +691,134 @@
     gap: 0.5rem;
   }
 }
+
+.filter-container {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #23408e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.2);
+}
+
+.filter-toggle-btn:hover {
+  background: #1a2e5b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+}
+
+.filter-buttons {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+  z-index: 1000;
+  transform-origin: top right;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.filter-buttons.show {
+  display: flex;
+  transform: scale(1);
+  opacity: 1;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #23408e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.filter-btn:hover {
+  background: #f4f8fb;
+}
+
+.filter-btn.active {
+  background: #23408e;
+  color: white;
+}
+
+.filter-btn svg {
+  font-size: 1.2rem;
+}
+
+.pedidos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 16px;
+}
+
+.pedidos-header h1 {
+  font-size: 1.8rem;
+  color: #23408e;
+  margin: 0;
+  font-weight: 800;
+}
+
+.no-pedidos {
+  text-align: center;
+  padding: 40px;
+  background: #f8fafd;
+  border-radius: 16px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: #23408e;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.loading-spinner::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  margin-left: 12px;
+  border: 2px solid #23408e;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

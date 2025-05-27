@@ -37,11 +37,7 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
         const selecoesIniciais = {};
         Object.keys(ingredientesAgrupados).forEach(categoria => {
           ingredientesAgrupados[categoria].forEach(ing => {
-            if (ing.isRequired) {
-              selecoesIniciais[ing.id] = 1;
-            } else {
-              selecoesIniciais[ing.id] = 0;
-            }
+            selecoesIniciais[ing.id] = 0;
           });
         });
         setSelecoes(selecoesIniciais);
@@ -86,12 +82,10 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
 
   const verificarSePodeAdicionar = () => {
     return Object.entries(ingredientes).every(([categoria, ings]) => {
-      return ings.every(ing => {
-        if (ing.isRequired) {
-          return selecoes[ing.id] > 0;
-        }
-        return true;
-      });
+      const grupoObrigatorio = ings.some(ing => ing.isRequired);
+      if (!grupoObrigatorio) return true;
+      // Pelo menos 1 selecionado no grupo obrigatório
+      return ings.some(ing => selecoes[ing.id]);
     });
   };
 
@@ -121,20 +115,29 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
   };
 
   // Função para saber se o grupo é escolha única (radio) ou múltipla (checkbox)
-  const isGrupoEscolhaUnica = (ings) => ings.every(ing => ing.maxQuantity === 1);
+  const isGrupoEscolhaUnica = (ings, maxQuantidade) => maxQuantidade === 1;
 
-  const handleSelecionar = (categoria, ingredienteId, checked) => {
+  const handleSelecionar = (categoria, ingredienteId, checked, maxQuantidade) => {
     setSelecoes(prev => {
       const novo = { ...prev };
-      if (isGrupoEscolhaUnica(ingredientes[categoria])) {
+      const selecionados = Object.entries(novo)
+        .filter(([id, v]) => ingredientes[categoria].some(ing => ing.id === parseInt(id)) && v)
+        .map(([id]) => parseInt(id));
+      if (isGrupoEscolhaUnica(ingredientes[categoria], maxQuantidade)) {
         // Radio: desmarcar todos e marcar só o escolhido
         ingredientes[categoria].forEach(ing => {
           novo[ing.id] = 0;
         });
         novo[ingredienteId] = checked ? 1 : 0;
       } else {
-        // Checkbox: marcar/desmarcar
-        novo[ingredienteId] = checked ? 1 : 0;
+        // Checkbox: só permite até o máximo
+        if (checked) {
+          if (selecionados.length < maxQuantidade) {
+            novo[ingredienteId] = 1;
+          }
+        } else {
+          novo[ingredienteId] = 0;
+        }
       }
       return novo;
     });
@@ -175,29 +178,53 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
         </div>
         <div className="personalizar-modal__body">
           {Object.entries(ingredientes).map(([categoria, ingredientesCategoria]) => {
-            const escolhaUnica = isGrupoEscolhaUnica(ingredientesCategoria);
+            const maxQuantidade = ingredientesCategoria[0]?.maxQuantity || 1;
+            const grupoObrigatorio = ingredientesCategoria.some(ing => ing.isRequired);
+            const escolhaUnica = isGrupoEscolhaUnica(ingredientesCategoria, maxQuantidade);
+            const selecionados = ingredientesCategoria.filter(ing => selecoes[ing.id]).length;
             return (
               <div key={categoria} className="personalizar-modal__grupo">
-                <h4>{categoria}</h4>
-                {ingredientesCategoria.map(ingrediente => (
-                  <div key={ingrediente.id} className="personalizar-modal__opcao" style={{gap: 12}}>
-                    {ingrediente.image && (
-                      <img src={ingrediente.image} alt={ingrediente.name} style={{width:36, height:36, borderRadius:8, objectFit:'cover', marginRight:10, background:'#f4f8fb'}} />
-                    )}
-                    <div style={{flex:1, minWidth:0}}>
-                      <div style={{fontWeight:600, color:'#23408e', fontSize:'1.05em', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{ingrediente.name} {ingrediente.isRequired && <span className="obrigatorio">*</span>}</div>
-                      {ingrediente.description && <div style={{color:'#888', fontSize:'0.93em'}}>{ingrediente.description}</div>}
-                      {ingrediente.price > 0 && <div style={{color:'#28a745', fontWeight:500, fontSize:'0.97em'}}>+ R$ {ingrediente.price.toFixed(2)}</div>}
-                    </div>
-                    <input
-                      type={escolhaUnica ? 'radio' : 'checkbox'}
-                      name={categoria}
-                      checked={!!selecoes[ingrediente.id]}
-                      onChange={e => handleSelecionar(categoria, ingrediente.id, e.target.checked)}
-                      style={{width:22, height:22, accentColor:'#23408e'}}
-                    />
+                <div className="personalizar-modal__grupo-header">
+                  <h4>
+                    {categoria}
+                    {grupoObrigatorio && <span className="obrigatorio">*</span>}
+                  </h4>
+                  <div className="personalizar-modal__grupo-info">
+                    {grupoObrigatorio && <span className="grupo-obrigatorio">Obrigatório</span>}
+                    <span className="grupo-quantidade">Escolha até {maxQuantidade} {maxQuantidade === 1 ? 'item' : 'itens'} ({selecionados}/{maxQuantidade} selecionado{maxQuantidade > 1 ? 's' : ''})</span>
                   </div>
-                ))}
+                </div>
+                {ingredientesCategoria.map(ingrediente => {
+                  const checked = !!selecoes[ingrediente.id];
+                  const disabled = !checked && selecionados >= maxQuantidade;
+                  return (
+                    <div
+                      key={ingrediente.id}
+                      className="personalizar-modal__opcao"
+                      onClick={() => {
+                        if (!disabled) handleSelecionar(categoria, ingrediente.id, !checked, maxQuantidade);
+                      }}
+                      style={{ cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}
+                    >
+                      {ingrediente.image && (
+                        <img src={ingrediente.image} alt={ingrediente.name} className="ingrediente-imagem" />
+                      )}
+                      <div className="ingrediente-info">
+                        <div className="ingrediente-nome">{ingrediente.name}</div>
+                        {ingrediente.description && <div className="ingrediente-descricao">{ingrediente.description}</div>}
+                        {ingrediente.price > 0 && <div className="ingrediente-preco">+ R$ {ingrediente.price.toFixed(2)}</div>}
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={disabled}
+                        onChange={() => {}}
+                        className="ingrediente-checkbox radio-style"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             );
           })}

@@ -10,6 +10,8 @@ const CarrinhoCliente = ({ itens: propsItens, onRemoverItem: propsOnRemoverItem,
 
   // Estado local para itens do carrinho se não vierem via props
   const [localItens, setLocalItens] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
 
   // Sempre que a rota mudar, recarrega do localStorage se não vier via props
   useEffect(() => {
@@ -66,8 +68,40 @@ const CarrinhoCliente = ({ itens: propsItens, onRemoverItem: propsOnRemoverItem,
   };
 
   const handleFinalizarPedido = () => {
-    navigate('/clientes/finalizar-pedido');
+    const pedidosSalvos = localStorage.getItem('pedidosCliente');
+    const pedidos = pedidosSalvos ? JSON.parse(pedidosSalvos) : [];
+    if (pedidos.length > 0) {
+      setShowModal(true);
+    } else {
+      navigate('/clientes/finalizar-pedido');
+    }
   };
+
+  const handleModalEscolha = (usarUltimo) => {
+    setShowModal(false);
+    setModalLoading(true);
+    setTimeout(() => {
+      if (usarUltimo) {
+        navigate('/clientes/finalizar-pedido?usarUltimo=1');
+      } else {
+        navigate('/clientes/finalizar-pedido');
+      }
+      setModalLoading(false);
+    }, 200);
+  };
+
+  const renderModal = () => (
+    <div className="modal-confirm-overlay">
+      <div className="modal-confirm-content">
+        <h3>Usar dados do último pedido?</h3>
+        <p>Deseja preencher automaticamente com nome, telefone e endereço do último pedido realizado?</p>
+        <div className="modal-confirm-actions">
+          <button className="modal-confirm-btn sim" onClick={() => handleModalEscolha(true)} disabled={modalLoading}>Sim</button>
+          <button className="modal-confirm-btn nao" onClick={() => handleModalEscolha(false)} disabled={modalLoading}>Não</button>
+        </div>
+      </div>
+    </div>
+  );
 
   const renderCarrinho = () => (
     <div className={`carrinho-cliente carrinho-cliente--fullpage`}>
@@ -139,6 +173,7 @@ const CarrinhoCliente = ({ itens: propsItens, onRemoverItem: propsOnRemoverItem,
           </button>
         </div>
       )}
+      {showModal && renderModal()}
     </div>
   );
 
