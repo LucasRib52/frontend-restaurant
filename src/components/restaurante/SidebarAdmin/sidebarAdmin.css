@@ -1,0 +1,186 @@
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar-header {
+  padding: 25px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 25px;
+  color: #4a4a4a;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin: 4px 0;
+  border-radius: 0 12px 12px 0;
+  margin-right: 15px;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(0, 123, 255, 0.08);
+  color: #007bff;
+  transform: translateX(5px);
+}
+
+.sidebar-link.active {
+  background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.sidebar-link svg {
+  font-size: 1.3rem;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-link:hover svg {
+  transform: scale(1.1);
+}
+
+.sidebar-link span {
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+  
+  .sidebar-link {
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    background: #ffffff;
+  }
+
+  .sidebar-header h2 {
+    display: none;
+  }
+
+  .sidebar-link span {
+    display: none;
+  }
+
+  .sidebar-link {
+    justify-content: center;
+    padding: 18px;
+    margin: 4px 8px;
+    border-radius: 12px;
+  }
+
+  .sidebar-link.active {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 12px;
+  }
+
+  .sidebar-link:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar-link {
+    padding: 15px;
+    margin: 3px 6px;
+  }
+
+  .sidebar-link svg {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar {
+    width: 50px;
+  }
+
+  .sidebar-link {
+    padding: 12px;
+    margin: 2px 4px;
+  }
+
+  .sidebar-link svg {
+    font-size: 1.1rem;
+  }
+}
+
+/* Ajustes para telas muito pequenas em modo paisagem */
+@media (max-height: 480px) and (orientation: landscape) {
+  .sidebar {
+    height: 100%;
+  }
+
+  .sidebar-header {
+    padding: 15px;
+  }
+
+  .sidebar-link {
+    padding: 10px;
+    margin: 2px 4px;
+  }
+}
+
+/* Scrollbar personalizada */
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #d1d1d1;
+  border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ajuste para evitar problemas de scroll em iOS */
+@supports (-webkit-touch-callout: none) {
+  .sidebar {
+    height: -webkit-fill-available;
+  }
+}

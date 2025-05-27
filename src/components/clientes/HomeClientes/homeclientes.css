@@ -1,0 +1,516 @@
+.home-clientes-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 12px 32px 12px;
+}
+
+.home-clientes-header {
+  background: rgba(255,255,255,0.85);
+  border-radius: 28px;
+  padding: 40px 28px 32px 28px;
+  margin-bottom: 38px;
+  box-shadow: 0 8px 32px rgba(52, 99, 255, 0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1.5px solid #eaf6ff;
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.home-clientes-header__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+.home-clientes-header__logo {
+  max-width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 24px rgba(52,99,255,0.13);
+  border: 4px solid #f4f8fb;
+  background: #f8fafc;
+}
+
+.home-clientes-header__titulo {
+  font-size: 2.6rem;
+  font-weight: 900;
+  margin: 0 0 8px 0;
+  letter-spacing: -1px;
+  text-align: center;
+  background: linear-gradient(90deg, #6c63ff 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #444;
+  font-size: 1.13rem;
+  width: 100%;
+  justify-content: center;
+  background: #f4f8fb;
+  border-radius: 10px;
+  padding: 8px 18px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 6px rgba(52,99,255,0.04);
+}
+
+.info-item i, .info-item svg {
+  color: #6c63ff;
+  width: 26px;
+  font-size: 1.25rem;
+}
+
+.home-clientes-header__divider {
+  width: 100%;
+  height: 1.5px;
+  background: #eaf6ff;
+  margin: 16px 0 12px 0;
+}
+
+.home-clientes-header__horarios {
+  margin-top: 12px;
+  width: 100%;
+  text-align: center;
+}
+
+.home-clientes-header__horarios strong {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 1.13rem;
+  font-weight: 700;
+}
+
+.home-clientes-header__horarios ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 18px;
+  padding: 0;
+  margin: 0;
+}
+
+.home-clientes-header__horarios li {
+  color: #555;
+  font-size: 1.01rem;
+  background: linear-gradient(90deg,#f7f7fa 60%,#eaf6ff 100%);
+  border-radius: 8px;
+  padding: 6px 18px;
+  min-width: 120px;
+  box-shadow: 0 1px 4px rgba(52,99,255,0.04);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .home-clientes-header {
+    padding: 24px 8px 18px 8px;
+    border-radius: 18px;
+  }
+  .home-clientes-header__logo {
+    max-width: 90px;
+    height: 90px;
+  }
+  .home-clientes-header__titulo {
+    font-size: 1.5rem;
+  }
+  .home-clientes-header__horarios li {
+    min-width: 90px;
+    font-size: 0.93rem;
+    padding: 4px 8px;
+  }
+  .home-clientes-cardapio {
+    padding: 18px 6px;
+    border-radius: 10px;
+  }
+  .home-clientes-cardapio__titulo {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  .home-clientes-carrinho {
+    border-radius: 10px 10px 0 0;
+    padding-bottom: 2px;
+  }
+}
+
+.home-clientes-cardapio {
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  padding: 32px 22px;
+  box-shadow: 0 4px 24px rgba(52,99,255,0.09);
+  margin-bottom: 32px;
+}
+
+.home-clientes-cardapio__titulo {
+  font-size: 1.5rem;
+  color: #3498db;
+  margin-bottom: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.home-clientes-carrinho {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,0.98);
+  box-shadow: 0 -8px 32px rgba(52,99,255,0.13);
+  z-index: 1000;
+  border-radius: 18px 18px 0 0;
+  padding-bottom: 8px;
+  border-top: 2.5px solid #eaf6ff;
+}
+
+.home-clientes-carrinho__titulo {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.home-clientes-carrinho__items {
+  margin-top: 15px;
+}
+
+.home-clientes-config-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.home-clientes-config-btn {
+  background: #28a745;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(40,167,69,0.08);
+}
+.home-clientes-config-btn:hover {
+  background: #218838;
+}
+
+/* Horários premium */
+.horarios-badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 12px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.horario-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background: linear-gradient(90deg,#f7f7fa 60%,#eaf6ff 100%);
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(52,99,255,0.07);
+  padding: 8px 18px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #444;
+  min-width: 140px;
+  position: relative;
+  border: 2px solid transparent;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.horario-badge-hoje {
+  border: 2px solid #6c63ff;
+  box-shadow: 0 2px 12px rgba(52,99,255,0.13);
+  background: linear-gradient(90deg,#eaf6ff 60%,#d6e6ff 100%);
+  color: #222;
+  z-index: 2;
+}
+.horario-badge-aberto {
+  background: #e6fbe8;
+  color: #1abc4c;
+  border-radius: 8px;
+  font-size: 0.98em;
+  font-weight: 700;
+  padding: 2px 10px;
+  margin-left: 8px;
+  box-shadow: 0 1px 4px rgba(26,188,76,0.07);
+  border: 1.5px solid #b6f2c7;
+  animation: pulseOpen 1.2s infinite alternate;
+}
+@keyframes pulseOpen {
+  0% { box-shadow: 0 0 0 0 #b6f2c7; }
+  100% { box-shadow: 0 0 0 6px #b6f2c700; }
+}
+.horario-badge-fechado {
+  background: #ffeaea;
+  color: #e74c3c;
+  border-radius: 8px;
+  font-size: 0.98em;
+  font-weight: 700;
+  padding: 2px 10px;
+  margin-left: 8px;
+  box-shadow: 0 1px 4px rgba(231,76,60,0.07);
+  border: 1.5px solid #ffd6d6;
+}
+.horario-badge-feriado {
+  background: #fffbe6;
+  color: #e6b800;
+  border-radius: 8px;
+  font-size: 0.98em;
+  font-weight: 700;
+  padding: 2px 10px;
+  margin-left: 8px;
+  box-shadow: 0 1px 4px rgba(230,184,0,0.07);
+  border: 1.5px solid #ffe9a6;
+  display: flex;
+  align-items: center;
+}
+.horario-dia {
+  font-weight: 700;
+  color: #6c63ff;
+  margin-right: 2px;
+}
+.horario-horas {
+  color: #3498db;
+  font-weight: 600;
+  margin-left: 2px;
+}
+@media (max-width: 900px) {
+  .horarios-badges-list {
+    gap: 7px 4px;
+  }
+  .horario-badge {
+    font-size: 0.97rem;
+    padding: 6px 8px;
+    min-width: 90px;
+  }
+}
+
+/* --- HEADER MODERNO TIPO CARDÁPIO DIGITAL --- */
+.home-clientes-header-modern {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0 0 32px 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: none;
+  max-width: 1100px;
+  margin: 0 auto 32px auto;
+}
+.header-main-row {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
+  justify-content: flex-start;
+}
+.home-clientes-header__logo-modern {
+  max-width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 24px rgba(52,99,255,0.13);
+  border: 4px solid #f4f8fb;
+  background: #f8fafc;
+}
+.header-main-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.home-clientes-header__titulo-modern {
+  font-size: 2.3rem;
+  font-weight: 900;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -1px;
+  text-align: left;
+  background: linear-gradient(90deg, #6c63ff 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header-main-infos-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem 2.2rem;
+  align-items: center;
+}
+.header-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: #444;
+  font-size: 1.08rem;
+  font-weight: 600;
+  background: #f4f8fb;
+  border-radius: 8px;
+  padding: 6px 16px;
+  box-shadow: 0 1px 6px rgba(52,99,255,0.04);
+}
+
+/* Card de horários */
+.horarios-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(52,99,255,0.09);
+  padding: 2.2rem 2rem 1.5rem 2rem;
+  margin: 0 auto 0 auto;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+.horarios-card-status-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+.horarios-card-aberto {
+  background: #e6fbe8;
+  color: #1abc4c;
+  border-radius: 999px;
+  font-size: 1.13rem;
+  font-weight: 800;
+  padding: 7px 28px;
+  box-shadow: 0 1px 8px rgba(26,188,76,0.07);
+  border: 2px solid #b6f2c7;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: pulseOpen 1.2s infinite alternate;
+}
+.horarios-card-fechado {
+  background: #ffeaea;
+  color: #e74c3c;
+  border-radius: 999px;
+  font-size: 1.13rem;
+  font-weight: 800;
+  padding: 7px 28px;
+  box-shadow: 0 1px 8px rgba(231,76,60,0.07);
+  border: 2px solid #ffd6d6;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+@keyframes pulseOpen {
+  0% { box-shadow: 0 0 0 0 #b6f2c7; }
+  100% { box-shadow: 0 0 0 8px #b6f2c700; }
+}
+.horarios-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #3498db;
+  margin-bottom: 0.7rem;
+}
+.horarios-card-title {
+  font-size: 1.13rem;
+  font-weight: 700;
+  color: #3498db;
+}
+.horarios-badges-list-modern {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.horario-badge-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background: linear-gradient(90deg,#f7f7fa 60%,#eaf6ff 100%);
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(52,99,255,0.07);
+  padding: 7px 16px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #444;
+  min-width: 110px;
+  position: relative;
+  border: 2px solid transparent;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.horario-badge-modern-hoje {
+  border: 2px solid #6c63ff;
+  box-shadow: 0 2px 12px rgba(52,99,255,0.13);
+  background: linear-gradient(90deg,#eaf6ff 60%,#d6e6ff 100%);
+  color: #222;
+  z-index: 2;
+}
+.horario-dia-modern {
+  font-weight: 700;
+  color: #6c63ff;
+  margin-right: 2px;
+}
+.horario-horas-modern {
+  color: #3498db;
+  font-weight: 600;
+  margin-left: 2px;
+}
+.horario-badge-modern-feriado {
+  background: #fffbe6;
+  color: #e6b800;
+  border-radius: 8px;
+  font-size: 0.98em;
+  font-weight: 700;
+  padding: 2px 10px;
+  margin-left: 8px;
+  box-shadow: 0 1px 4px rgba(230,184,0,0.07);
+  border: 1.5px solid #ffe9a6;
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .header-main-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .home-clientes-header__logo-modern {
+    max-width: 70px;
+    height: 70px;
+  }
+  .home-clientes-header__titulo-modern {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .header-main-infos-row {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  .horarios-card {
+    padding: 1.1rem 0.5rem 0.7rem 0.5rem;
+    border-radius: 10px;
+    max-width: 99vw;
+  }
+  .horarios-badges-list-modern {
+    gap: 5px 2px;
+  }
+  .horario-badge-modern {
+    font-size: 0.97rem;
+    padding: 5px 7px;
+    min-width: 70px;
+  }
+}

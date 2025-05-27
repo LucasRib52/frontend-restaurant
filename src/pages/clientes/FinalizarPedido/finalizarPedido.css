@@ -1,0 +1,290 @@
+body {
+  background: linear-gradient(135deg, #f6f8fa 0%, #e9f0f7 100%);
+  min-height: 100vh;
+}
+.finalizar-pedido-container {
+  max-width: 480px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 30px;
+  box-shadow: 0 20px 60px rgba(37,99,235,0.08);
+  padding: 0;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(40px) scale(0.96);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+}
+.finalizar-pedido-header {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #23408e 0%, #1a2e5b 100%);
+  z-index: 2;
+  padding: 40px 32px 24px 32px;
+  text-align: center;
+  color: white;
+}
+.finalizar-pedido-header h2 {
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+  font-family: 'Montserrat', Arial, sans-serif;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.finalizar-pedido-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  background: #fff;
+}
+.finalizar-pedido-section {
+  background: #f8fafd;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 0;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(37,99,235,0.08);
+}
+.finalizar-pedido-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37,99,235,0.06);
+}
+.finalizar-pedido-section h3 {
+  color: #23408e;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.finalizar-pedido-section h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(to bottom, #23408e, #28a745);
+  border-radius: 2px;
+}
+.finalizar-pedido-label {
+  font-size: 0.95rem;
+  color: #23408e;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+.finalizar-pedido-input, .finalizar-pedido-select {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #eaf6ff;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  background: #fff;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.finalizar-pedido-input:focus, .finalizar-pedido-select:focus {
+  border: 2px solid #23408e;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+  transform: translateY(-1px);
+}
+.finalizar-pedido-resumo {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.03);
+  padding: 24px;
+  margin-top: 8px;
+  margin-bottom: 0;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(37,99,235,0.08);
+}
+.finalizar-pedido-resumo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37,99,235,0.06);
+}
+.finalizar-pedido-resumo h4 {
+  color: #23408e;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.finalizar-pedido-resumo h4::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(to bottom, #23408e, #28a745);
+  border-radius: 2px;
+}
+.finalizar-pedido-resumo-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+.finalizar-pedido-resumo-lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f4f8fb;
+  font-size: 1rem;
+  color: #333;
+}
+.finalizar-pedido-resumo-lista li:last-child {
+  border-bottom: none;
+}
+.finalizar-pedido-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #28a745;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px dashed rgba(37,99,235,0.1);
+}
+.finalizar-pedido-btn {
+  width: 100%;
+  padding: 18px 0;
+  background: linear-gradient(135deg, #23408e 0%, #1a2e5b 100%);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.15);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+.finalizar-pedido-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.finalizar-pedido-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(37,99,235,0.2);
+}
+.finalizar-pedido-btn:hover::after {
+  opacity: 1;
+}
+.finalizar-pedido-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.success-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(37,99,235,0.15);
+  text-align: center;
+  z-index: 1000;
+  animation: fadeIn 0.4s ease;
+  max-width: 90%;
+  width: 360px;
+}
+.success-message h3 {
+  color: #28a745;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+  font-weight: 800;
+}
+.success-message p {
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+.success-message .countdown {
+  color: #23408e;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translate(-50%, -45%);
+  }
+  to { 
+    opacity: 1; 
+    transform: translate(-50%, -50%);
+  }
+}
+@media (max-width: 600px) {
+  .finalizar-pedido-container {
+    max-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    min-height: 100vh;
+  }
+  .finalizar-pedido-header {
+    padding: 32px 24px 20px 24px;
+  }
+  .finalizar-pedido-header h2 {
+    font-size: 1.8rem;
+  }
+  .finalizar-pedido-form {
+    padding: 24px 20px;
+    gap: 20px;
+  }
+  .finalizar-pedido-section,
+  .finalizar-pedido-resumo {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .finalizar-pedido-btn {
+    font-size: 1rem;
+    padding: 16px 0;
+    margin-top: 20px;
+  }
+  .success-message {
+    width: 90%;
+    padding: 30px 20px;
+  }
+  .success-message h3 {
+    font-size: 1.5rem;
+  }
+}

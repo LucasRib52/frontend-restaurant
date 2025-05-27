@@ -1,0 +1,194 @@
+.personalizar-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeInModal 0.3s;
+}
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.personalizar-modal {
+  background: #fff;
+  border-radius: 18px;
+  width: 96%;
+  max-width: 420px;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 40px rgba(37,99,235,0.13);
+  display: flex;
+  flex-direction: column;
+  animation: slideUpModal 0.3s;
+}
+@keyframes slideUpModal {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.personalizar-modal__header {
+  padding: 1.2rem 1.5rem 1.2rem 1.5rem;
+  border-bottom: 1.5px solid #eaf6ff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+.personalizar-modal__header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #23408e;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.personalizar-modal__fechar {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #aaa;
+  transition: color 0.2s;
+}
+.personalizar-modal__fechar:hover {
+  color: #23408e;
+}
+
+.personalizar-modal__body {
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.personalizar-modal__grupo {
+  margin-bottom: 0.5rem;
+}
+.personalizar-modal__grupo h4 {
+  margin: 0 0 0.5rem 0;
+  color: #23408e;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.personalizar-modal__opcao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f4f8fb;
+}
+.personalizar-modal__opcao label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #333;
+  font-size: 1.01rem;
+  font-weight: 500;
+}
+
+.personalizar-modal__quantidade {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.personalizar-modal__quantidade button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #eaf6ff;
+  background: #f4f8fb;
+  color: #23408e;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.personalizar-modal__quantidade button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f4f8fb;
+  color: #bbb;
+}
+.personalizar-modal__quantidade span {
+  min-width: 28px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #23408e;
+}
+
+.personalizar-modal__footer {
+  padding: 1.2rem 1.5rem;
+  border-top: 1.5px solid #eaf6ff;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+.personalizar-modal__adicionar {
+  background-color: #23408e;
+  color: white;
+  border: none;
+  padding: 1rem 0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.13rem;
+  font-weight: 800;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+  transition: background 0.2s, transform 0.2s;
+}
+.personalizar-modal__adicionar:hover:not(:disabled) {
+  background-color: #1a2e5b;
+  transform: scale(1.03);
+}
+.personalizar-modal__adicionar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.obrigatorio {
+  color: #e74c3c;
+  margin-left: 0.25rem;
+  font-size: 1.1em;
+}
+
+@media (max-width: 600px) {
+  .personalizar-modal {
+    max-width: 99vw;
+    border-radius: 8px;
+    padding: 0;
+  }
+  .personalizar-modal__header,
+  .personalizar-modal__body,
+  .personalizar-modal__footer {
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+  }
+  .personalizar-modal__header h2 {
+    font-size: 1.01rem;
+  }
+  .personalizar-modal__adicionar {
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 0.8rem 0;
+  }
+} 

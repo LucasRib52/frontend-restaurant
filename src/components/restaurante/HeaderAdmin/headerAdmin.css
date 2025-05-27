@@ -1,0 +1,290 @@
+.header-admin {
+  height: 80px;
+  background: linear-gradient(90deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 35px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 280px;
+  z-index: 999;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* When sidebar is closed */
+.sidebar-admin.closed ~ .header-admin {
+  left: 70px;
+}
+
+.header-left h1 {
+  font-size: 1.8rem;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #1a1a1a 0%, #333 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+.notifications {
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.notifications:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.notifications .icon {
+  font-size: 1.6rem;
+  color: #4a4a4a;
+}
+
+.notifications .badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #ff4b4b 0%, #dc3545 100%);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 8px 15px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.profile:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.profile-image {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.profile:hover .profile-image {
+  transform: scale(1.05);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info .name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1.1rem;
+}
+
+.profile-info .role {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .header-admin {
+    left: 240px;
+    padding: 0 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-admin {
+    left: 70px;
+    padding: 0 15px;
+    height: 60px;
+    justify-content: flex-end;
+  }
+
+  .header-left {
+    display: none;
+  }
+
+  .header-right {
+    gap: 15px;
+    margin-left: auto;
+  }
+
+  .profile-info {
+    display: none;
+  }
+
+  .profile {
+    padding: 6px;
+    margin-left: 5px;
+  }
+
+  .profile-image {
+    width: 35px;
+    height: 35px;
+  }
+
+  .notifications {
+    padding: 6px;
+  }
+
+  .notifications .icon {
+    font-size: 1.3rem;
+  }
+
+  .notifications .badge {
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-admin {
+    left: 60px;
+    padding: 0 12px;
+    height: 55px;
+  }
+
+  .header-right {
+    gap: 10px;
+  }
+
+  .notifications {
+    padding: 5px;
+  }
+
+  .notifications .icon {
+    font-size: 1.2rem;
+  }
+
+  .notifications .badge {
+    width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+    top: -1px;
+    right: -1px;
+  }
+
+  .profile {
+    padding: 5px;
+  }
+
+  .profile-image {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header-admin {
+    left: 50px;
+    padding: 0 8px;
+    height: 50px;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .notifications {
+    padding: 4px;
+  }
+
+  .notifications .icon {
+    font-size: 1.1rem;
+  }
+
+  .notifications .badge {
+    width: 15px;
+    height: 15px;
+    font-size: 0.6rem;
+  }
+
+  .profile {
+    padding: 4px;
+  }
+
+  .profile-image {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Ajuste para telas muito pequenas em modo paisagem */
+@media (max-height: 480px) and (orientation: landscape) {
+  .header-admin {
+    height: 45px;
+    padding: 0 10px;
+  }
+
+  .profile-image {
+    width: 30px;
+    height: 30px;
+  }
+
+  .notifications .icon {
+    font-size: 1.1rem;
+  }
+
+  .notifications .badge {
+    width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+  }
+}
+
+/* Ajuste para evitar problemas de scroll em iOS */
+@supports (-webkit-touch-callout: none) {
+  .header-admin {
+    height: -webkit-fill-available;
+    min-height: 45px;
+  }
+}

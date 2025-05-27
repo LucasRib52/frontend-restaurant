@@ -1,0 +1,693 @@
+.pedidos-restaurante-container {
+  padding: 2.5rem 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #eaf6ff 100%);
+}
+
+.pedidos-restaurante-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(52,152,219,0.07);
+  padding: 1.5rem 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.pedidos-restaurante-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.btn-atualizar {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(52,152,219,0.13);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.btn-atualizar:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-atualizar:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  background: linear-gradient(135deg, #2980b9 0%, #2471a3 100%);
+}
+
+.pedidos-restaurante-error {
+  color: #d32f2f;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  background-color: #ffebee;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(211,47,47,0.07);
+}
+
+.pedidos-restaurante-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #3498db;
+  font-size: 1.2rem;
+}
+
+.pedidos-restaurante-vazio {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1.2rem;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.pedidos-restaurante-tabela {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.7rem;
+  margin-top: 1rem;
+  background: none;
+}
+
+.pedidos-restaurante-tabela th,
+.pedidos-restaurante-tabela td {
+  padding: 1.1rem 1rem;
+  text-align: left;
+  background: white;
+  border: none;
+  font-size: 1.05rem;
+  box-shadow: 0 2px 8px rgba(52,152,219,0.04);
+}
+
+.pedidos-restaurante-tabela th {
+  background: #f4f8fb;
+  font-weight: 700;
+  color: #2c3e50;
+  border-radius: 10px 10px 0 0;
+}
+
+.pedidos-restaurante-tabela tr {
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.pedidos-restaurante-tabela tr:hover {
+  box-shadow: 0 4px 16px rgba(52,152,219,0.10);
+}
+
+.pedido-status-badge {
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-size: 1em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 4px rgba(52,152,219,0.07);
+  border: 1.5px solid #e3eaf3;
+  display: inline-block;
+}
+
+.pedido-status-badge-pending {
+  background: linear-gradient(90deg,#fff3e0 60%,#ffe0b2 100%);
+  color: #e65100;
+}
+
+.pedido-status-badge-confirmed {
+  background: linear-gradient(90deg,#e3f2fd 60%,#bbdefb 100%);
+  color: #1565c0;
+}
+
+.pedido-status-badge-preparing {
+  background: linear-gradient(90deg,#e8f5e9 60%,#b2dfdb 100%);
+  color: #2e7d32;
+}
+
+.pedido-status-badge-ready {
+  background: linear-gradient(90deg,#f3e5f5 60%,#ce93d8 100%);
+  color: #6a1b9a;
+}
+
+.pedido-status-badge-delivered {
+  background: linear-gradient(90deg,#e8eaf6 60%,#b3c0e6 100%);
+  color: #283593;
+}
+
+.pedido-status-badge-cancelled {
+  background: linear-gradient(90deg,#ffebee 60%,#ffcdd2 100%);
+  color: #c62828;
+}
+
+.pedido-acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-confirmar,
+.btn-cancelar,
+.btn-preparar,
+.btn-pronto,
+.btn-entregue,
+.btn-imprimir,
+.btn-visualizar {
+  padding: 0.8rem 1.3rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(52,152,219,0.07);
+  display: flex;
+  font-size: 0.9em;
+  transition: background-color 0.2s;
+}
+
+.btn-confirmar {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-cancelar {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-preparar {
+  background-color: #2196F3;
+  color: white;
+}
+
+.btn-pronto {
+  background-color: #9C27B0;
+  color: white;
+}
+
+.btn-entregue {
+  background-color: #607D8B;
+  color: white;
+}
+
+.btn-confirmar:hover { background-color: #45a049; }
+.btn-cancelar:hover { background-color: #da190b; }
+.btn-preparar:hover { background-color: #1976D2; }
+.btn-pronto:hover { background-color: #7B1FA2; }
+.btn-entregue:hover { background-color: #455A64; }
+
+.btn-confirmar:disabled,
+.btn-cancelar:disabled,
+.btn-preparar:disabled,
+.btn-pronto:disabled,
+.btn-entregue:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-imprimir {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 8px;
+  transition: background-color 0.3s;
+}
+
+.btn-imprimir:hover {
+  background-color: #357abd;
+}
+
+.btn-imprimir:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-visualizar {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+.btn-visualizar:hover {
+  background-color: #357abd;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.pedido-info {
+  margin-bottom: 20px;
+}
+
+.pedido-info p {
+  margin: 8px 0;
+  color: #333;
+}
+
+.pedido-items {
+  margin-bottom: 20px;
+}
+
+.pedido-items h3 {
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.pedido-item {
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.pedido-item p {
+  margin: 4px 0;
+}
+
+.item-ingredients {
+  margin: 8px 0;
+  padding-left: 16px;
+}
+
+.item-ingredients ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.item-ingredients li {
+  color: #666;
+}
+
+.pedido-total {
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+  margin-top: 16px;
+  text-align: right;
+}
+
+.pedido-total p {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+@media (max-width: 900px) {
+  .pedidos-restaurante-lista {
+    padding: 10px;
+  }
+  .pedidos-restaurante-tabela {
+    min-width: 500px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pedidos-restaurante-container {
+    padding: 8px;
+  }
+  .pedidos-restaurante-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .pedidos-restaurante-tabela {
+    font-size: 0.95rem;
+    min-width: 350px;
+  }
+}
+
+/* --- NOVO VISUAL PREMIUM PARA PEDIDOS --- */
+.pedidos-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.pedido-card {
+  background: rgba(255,255,255,0.25);
+  border-radius: 22px;
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(52,152,219,0.18);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  transition: box-shadow 0.25s, transform 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.pedido-card:hover {
+  box-shadow: 0 16px 40px 0 rgba(52,152,219,0.22);
+  transform: translateY(-6px) scale(1.025);
+}
+
+.pedido-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.pedido-card-id {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #217dbb;
+  letter-spacing: 0.02em;
+}
+
+.pedido-card-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 16px;
+  padding: 0.4rem 1.1rem;
+  background: linear-gradient(90deg,#e3f2fd 60%,#bbdefb 100%);
+  color: #1565c0;
+  box-shadow: 0 1px 4px rgba(52,152,219,0.07);
+  border: 1.5px solid #e3eaf3;
+}
+.pedido-card-status.pending { background: linear-gradient(90deg,#fff3e0 60%,#ffe0b2 100%); color: #e65100; }
+.pedido-card-status.confirmed { background: linear-gradient(90deg,#e3f2fd 60%,#bbdefb 100%); color: #1565c0; }
+.pedido-card-status.preparing { background: linear-gradient(90deg,#e8f5e9 60%,#b2dfdb 100%); color: #2e7d32; }
+.pedido-card-status.ready { background: linear-gradient(90deg,#f3e5f5 60%,#ce93d8 100%); color: #6a1b9a; }
+.pedido-card-status.delivered { background: linear-gradient(90deg,#e8eaf6 60%,#b3c0e6 100%); color: #283593; }
+.pedido-card-status.cancelled { background: linear-gradient(90deg,#ffebee 60%,#ffcdd2 100%); color: #c62828; }
+
+.pedido-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 1.05rem;
+  color: #34495e;
+}
+.pedido-card-info strong {
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.pedido-card-total {
+  font-size: 1.15rem;
+  color: #2c3e50;
+  font-weight: 800;
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+.pedido-card-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+.pedido-card-btn {
+  min-width: 120px;
+  justify-content: center;
+  font-size: 1.08rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  height: auto;
+  width: auto;
+}
+.pedido-card-btn.confirmar { background: linear-gradient(135deg,#4CAF50 0%,#43a047 100%); color: #fff; border: none; }
+.pedido-card-btn.cancelar { background: linear-gradient(135deg,#f44336 0%,#e53935 100%); color: #fff; border: none; }
+.pedido-card-btn.preparar { background: linear-gradient(135deg,#2196F3 0%,#1976D2 100%); color: #fff; border: none; }
+.pedido-card-btn.pronto { background: linear-gradient(135deg,#9C27B0 0%,#7B1FA2 100%); color: #fff; border: none; }
+.pedido-card-btn.entregue { background: linear-gradient(135deg,#607D8B 0%,#455A64 100%); color: #fff; border: none; }
+.pedido-card-btn.imprimir { background: linear-gradient(135deg,#4a90e2 0%,#357abd 100%); color: #fff; border: none; }
+.pedido-card-btn.visualizar {
+  min-width: 48px;
+  padding: 0.7rem;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
+.pedido-card-btn:hover { box-shadow: 0 4px 16px rgba(52,152,219,0.13); transform: scale(1.08); }
+.pedido-card-btn:active { filter: brightness(0.95); }
+
+/* Ícones dentro dos badges */
+.pedido-card-status .status-icon {
+  font-size: 1.2em;
+  margin-right: 0.3em;
+  vertical-align: middle;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .pedidos-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+}
+@media (max-width: 600px) {
+  .pedidos-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .pedido-card {
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+    border-radius: 14px;
+  }
+  .pedido-card-header h2 {
+    font-size: 1.1rem;
+  }
+  .pedidos-quick-filters {
+    gap: 0.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .quick-filter-btn {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.7rem;
+  }
+  .pedido-card-actions {
+    gap: 0.5rem;
+    margin-top: 0.7rem;
+  }
+  .pedido-card-btn {
+    min-width: 90px;
+    font-size: 0.97rem;
+    padding: 0.5rem 0.7rem;
+  }
+}
+
+/* Filtros rápidos */
+.pedidos-quick-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.quick-filter-btn {
+  background: #f4f8fb;
+  color: #3498db;
+  border: 1.5px solid #e3eaf3;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-right: 0.2rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+  box-shadow: 0 1px 4px rgba(52,152,219,0.04);
+}
+.quick-filter-btn.selected {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: #fff;
+  border: 1.5px solid #3498db;
+}
+.quick-filter-btn:hover:not(.selected) {
+  background: #eaf6ff;
+  color: #217dbb;
+}
+
+/* Modal bonito e premium */
+.modal-content-beautiful {
+  background: rgba(255,255,255,0.95);
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(52,152,219,0.18);
+  padding: 0;
+  overflow: hidden;
+  max-width: 520px;
+  width: 95%;
+  animation: modalFadeIn 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-body-beautiful {
+  padding: 2.2rem 1.7rem 1.7rem 1.7rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #eaf6ff 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.pedido-modal-status-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+.pedido-modal-info-blocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem 2.2rem;
+  background: #f4f8fb;
+  border-radius: 14px;
+  padding: 1.2rem 1rem;
+  box-shadow: 0 1px 6px rgba(52,152,219,0.07);
+}
+.pedido-modal-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.pedido-modal-info-label {
+  color: #64748b;
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+}
+.pedido-modal-info-value {
+  color: #2c3e50;
+  font-size: 1.08rem;
+  font-weight: 700;
+  word-break: break-word;
+}
+.pedido-modal-items-block {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.2rem 1rem;
+  box-shadow: 0 1px 6px rgba(52,152,219,0.07);
+}
+.pedido-modal-items-block h3 {
+  color: #3498db;
+  font-size: 1.13rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.pedido-modal-item {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+  box-shadow: 0 1px 4px rgba(52,152,219,0.04);
+}
+.pedido-modal-total-block {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.2rem;
+  background: #eaf6ff;
+  border-radius: 10px;
+  padding: 1.1rem 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #2c3e50;
+  box-shadow: 0 1px 4px rgba(52,152,219,0.04);
+}
+.pedido-modal-total-label {
+  color: #217dbb;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.pedido-modal-total-value {
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+@media (max-width: 600px) {
+  .modal-content-beautiful {
+    border-radius: 12px;
+    max-width: 99vw;
+    padding: 0;
+  }
+  .modal-body-beautiful {
+    padding: 1.1rem 0.5rem 0.7rem 0.5rem;
+    gap: 1.1rem;
+  }
+  .pedido-modal-info-blocks {
+    grid-template-columns: 1fr;
+    gap: 0.7rem 0.5rem;
+    padding: 0.7rem 0.3rem;
+  }
+  .pedido-modal-items-block {
+    padding: 0.7rem 0.3rem;
+  }
+  .pedido-modal-total-block {
+    padding: 0.7rem 0.5rem;
+    font-size: 1.05rem;
+    gap: 0.5rem;
+  }
+}
