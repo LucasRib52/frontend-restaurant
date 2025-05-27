@@ -1,9 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { dashboardService } from '../../../services/api';
-import { FaShoppingCart, FaDollarSign } from 'react-icons/fa';
+import { FaShoppingCart, FaDollarSign, FaFilter } from 'react-icons/fa';
 import { Pagination } from '@mui/material';
 import './DashboardRestaurante.css';
 import pedidosRestauranteService from '../../../services/pedidosrestaurante';
+
+const statusOptions = [
+  { label: 'Todos', value: 'all' },
+  { label: 'Pendentes', value: 'pending' },
+  { label: 'Em Preparo', value: 'preparing' },
+  { label: 'Prontos', value: 'ready' },
+  { label: 'Entregues', value: 'delivered' }
+];
+const periodOptions = [
+  { label: 'Hoje', value: 'today' },
+  { label: '7 Dias', value: 'week' },
+  { label: '30 Dias', value: 'month' },
+  { label: 'Mês Passado', value: 'lastMonth' }
+];
 
 const DashboardRestaurante = () => {
   const [summary, setSummary] = useState({
@@ -19,11 +33,16 @@ const DashboardRestaurante = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('today'); // today, week, month
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
   const [pedidos, setPedidos] = useState([]);
   const [loadingPedidos, setLoadingPedidos] = useState(true);
+  const [activeFilters, setActiveFilters] = useState({
+    status: 'all',
+    period: 'today'
+  });
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const statusMap = {
     confirmed: { label: 'Confirmado', className: 'confirmed' },
@@ -51,15 +70,66 @@ const DashboardRestaurante = () => {
       }
     };
     fetchPedidos();
-    // Opcional: polling a cada 30s
     const interval = setInterval(fetchPedidos, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
+
+  const applyFilters = (orders) => {
+    return orders.filter(order => {
+      const statusMatch = activeFilters.status === 'all' || order.status?.toLowerCase() === activeFilters.status.toLowerCase();
+      const today = new Date();
+      const orderDate = new Date(order.created_at);
+      let periodMatch = true;
+      switch (activeFilters.period) {
+        case 'today':
+          periodMatch = orderDate.toDateString() === new Date().toDateString();
+          break;
+        case 'week':
+          const weekAgo = new Date();
+          weekAgo.setDate(today.getDate() - 7);
+          periodMatch = orderDate >= weekAgo;
+          break;
+        case 'month':
+          const monthAgo = new Date();
+          monthAgo.setDate(today.getDate() - 30);
+          periodMatch = orderDate >= monthAgo;
+          break;
+        case 'lastMonth':
+          const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59);
+          periodMatch = orderDate >= firstDayLastMonth && orderDate <= lastDayLastMonth;
+          break;
+        default:
+          break;
+      }
+      return statusMatch && periodMatch;
+    });
+  };
+
+  const handleDropdownSelect = (type, value) => {
+    setActiveFilters(prev => ({ ...prev, [type]: value }));
+    setDropdownOpen(false);
+    setPage(1);
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await dashboardService.getSummary(filter);
+      const data = await dashboardService.getSummary(activeFilters.period);
       setSummary(data || {
         total_orders: 0,
         total_revenue: 0,
@@ -87,48 +157,6 @@ const DashboardRestaurante = () => {
     }).format(value || 0);
   };
 
-  const getFilterLabel = () => {
-    switch (filter) {
-      case 'today':
-        return 'Hoje';
-      case 'week':
-        return 'Esta Semana';
-      case 'month':
-        return 'Este Mês';
-      default:
-        return 'Hoje';
-    }
-  };
-
-  const getFilterData = () => {
-    switch (filter) {
-      case 'today':
-        return {
-          orders: summary.today_orders || 0,
-          revenue: summary.today_revenue || 0
-        };
-      case 'week':
-        return {
-          orders: summary.week_orders || 0,
-          revenue: summary.week_revenue || 0
-        };
-      case 'month':
-        return {
-          orders: summary.month_orders || 0,
-          revenue: summary.month_revenue || 0
-        };
-      default:
-        return {
-          orders: summary.today_orders || 0,
-          revenue: summary.today_revenue || 0
-        };
-    }
-  };
-
-  const handlePageChange = (event, value) => {
-    setPage(value);
-  };
-
   if (loading) {
     return (
       <div className="dashboard-loading">
@@ -147,36 +175,49 @@ const DashboardRestaurante = () => {
     );
   }
 
-  const filterData = getFilterData();
-  const totalPages = Math.ceil((summary.recent_orders?.length || 0) / itemsPerPage);
-  const paginatedOrders = summary.recent_orders?.slice(
+  const filteredOrders = applyFilters(pedidos);
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
-  ) || [];
+  );
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <div className="filter-buttons">
-          <button
-            className={filter === 'today' ? 'active' : ''}
-            onClick={() => setFilter('today')}
-          >
-            Hoje
+        <div className="header-content-row">
+          <h1>Dashboard</h1>
+          <button className="filter-icon-btn" onClick={() => setDropdownOpen(v => !v)} aria-label="Filtrar">
+            <FaFilter />
           </button>
-          <button
-            className={filter === 'week' ? 'active' : ''}
-            onClick={() => setFilter('week')}
-          >
-            Esta Semana
-          </button>
-          <button
-            className={filter === 'month' ? 'active' : ''}
-            onClick={() => setFilter('month')}
-          >
-            Este Mês
-          </button>
+          {dropdownOpen && (
+            <div className="filter-dropdown" ref={dropdownRef}>
+              <div className="dropdown-group">
+                <div className="dropdown-label">Status do Pedido</div>
+                {statusOptions.map(opt => (
+                  <button
+                    key={opt.value}
+                    className={`dropdown-item${activeFilters.status === opt.value ? ' selected' : ''}`}
+                    onClick={() => handleDropdownSelect('status', opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <div className="dropdown-group">
+                <div className="dropdown-label">Período</div>
+                {periodOptions.map(opt => (
+                  <button
+                    key={opt.value}
+                    className={`dropdown-item${activeFilters.period === opt.value ? ' selected' : ''}`}
+                    onClick={() => handleDropdownSelect('period', opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -187,7 +228,7 @@ const DashboardRestaurante = () => {
           </div>
           <div className="stat-content">
             <h3>Pedidos</h3>
-            <div className="stat-value">{pedidos.length}</div>
+            <div className="stat-value">{filteredOrders.length}</div>
             <p className="stat-label">Total</p>
           </div>
         </div>
@@ -198,7 +239,12 @@ const DashboardRestaurante = () => {
           </div>
           <div className="stat-content">
             <h3>Faturamento</h3>
-            <div className="stat-value">{formatCurrency(pedidos.reduce((acc, pedido) => acc + (Number(pedido.total_amount) || 0), 0))}</div>
+            <div className="stat-value">
+              {formatCurrency(filteredOrders.filter(pedido => {
+                const status = (pedido.status || '').toLowerCase();
+                return status !== 'cancelled' && status !== 'cancelado';
+              }).reduce((acc, pedido) => acc + (Number(pedido.total_amount) || 0), 0))}
+            </div>
             <p className="stat-label">Total</p>
           </div>
         </div>
@@ -224,8 +270,8 @@ const DashboardRestaurante = () => {
                     Carregando pedidos...
                   </td>
                 </tr>
-              ) : pedidos.length > 0 ? (
-                pedidos.slice(0, 5).map((order) => {
+              ) : paginatedOrders.length > 0 ? (
+                paginatedOrders.map((order) => {
                   const statusKey = (order.status || '').toLowerCase();
                   const statusInfo = statusMap[statusKey] || { label: order.status, className: '' };
                   return (
@@ -251,42 +297,23 @@ const DashboardRestaurante = () => {
               ) : (
                 <tr>
                   <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                    Nenhum pedido recente encontrado
+                    Nenhum pedido encontrado
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+
         <div className="pagination-container">
           <Pagination
             count={Math.max(1, totalPages)}
             page={page}
-            onChange={handlePageChange}
+            onChange={(e, value) => setPage(value)}
             color="primary"
             size="large"
             showFirstButton
             showLastButton
-            sx={{
-              '& .MuiPaginationItem-root': {
-                borderRadius: '8px',
-                margin: '0 4px',
-                fontWeight: 500,
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                  transform: 'translateY(-2px)'
-                }
-              },
-              '& .Mui-selected': {
-                background: 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)',
-                color: 'white',
-                boxShadow: '0 4px 12px rgba(0, 123, 255, 0.2)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #0056b3 0%, #004494 100%)'
-                }
-              }
-            }}
           />
         </div>
       </div>
