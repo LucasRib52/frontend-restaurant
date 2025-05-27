@@ -43,6 +43,39 @@ function isLast24Hours(dateString) {
   return diffInHours <= 24;
 }
 
+const getPaymentMethodFromPedido = (pedido) => {
+  return pedido.payment_method || '';
+};
+
+const getPaymentMethodLabel = (method) => {
+  switch (method) {
+    case 'dinheiro':
+      return 'Dinheiro';
+    case 'cartao_debito':
+      return 'Cartão de Débito';
+    case 'cartao_credito':
+      return 'Cartão de Crédito';
+    case 'pix':
+      return 'PIX';
+    default:
+      return 'Não informado';
+  }
+};
+
+const getPaymentDetails = (pedido) => {
+  const method = getPaymentMethodFromPedido(pedido);
+  if (method === 'dinheiro') {
+    if (pedido.change_amount && Number(pedido.change_amount) > 0) {
+      return `Dinheiro\nTroco para: R$ ${Number(pedido.change_amount).toFixed(2)}`;
+    }
+    return 'Dinheiro';
+  }
+  if (method === 'cartao_debito') return 'Cartão de Débito';
+  if (method === 'cartao_credito') return 'Cartão de Crédito';
+  if (method === 'pix') return 'PIX';
+  return 'Não informado';
+};
+
 const PedidosRestaurante = () => {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -139,10 +172,25 @@ const PedidosRestaurante = () => {
       });
     }
 
-    // Adiciona o total e a data
+    // Adiciona o total e forma de pagamento
     linhas.push(
       '',
       `TOTAL: R$ ${Number(pedido.total_amount).toFixed(2)}`,
+      ''
+    );
+
+    // Adiciona forma de pagamento e troco se for em dinheiro
+    if (pedido.payment_method === 'dinheiro') {
+      linhas.push('Forma de Pagamento: Dinheiro');
+      if (pedido.change_amount && Number(pedido.change_amount) > 0) {
+        linhas.push(`Troco para: R$ ${Number(pedido.change_amount).toFixed(2)}`);
+      }
+    } else {
+      linhas.push(`Forma de Pagamento: ${getPaymentMethodLabel(pedido.payment_method)}`);
+    }
+
+    linhas.push(
+      '',
       `Data: ${data}`,
       '--------------------------------'
     );
@@ -180,6 +228,7 @@ const PedidosRestaurante = () => {
             <span><strong>Telefone:</strong> {pedido.customer_phone}</span>
             <span><strong>Endereço:</strong> {pedido.customer_address}</span>
             <span><strong>Data:</strong> {new Date(pedido.created_at).toLocaleString('pt-BR')}</span>
+            <span><strong>Pagamento:</strong> {getPaymentDetails(pedido).split('\n').map((line, i) => <span key={i}>{line}<br/></span>)}</span>
           </div>
           <div className="pedido-card-total">
             Total: R$ {Number(pedido.total_amount).toFixed(2)}
@@ -263,6 +312,10 @@ const PedidosRestaurante = () => {
               <div className="pedido-modal-info-block">
                 <span className="pedido-modal-info-label">Data</span>
                 <span className="pedido-modal-info-value">{new Date(selectedPedido.created_at).toLocaleString('pt-BR')}</span>
+              </div>
+              <div className="pedido-modal-info-block">
+                <span className="pedido-modal-info-label">Pagamento</span>
+                <span className="pedido-modal-info-value">{getPaymentDetails(selectedPedido).split('\n').map((line, i) => <span key={i}>{line}<br/></span>)}</span>
               </div>
             </div>
             <div className="pedido-modal-items-block">

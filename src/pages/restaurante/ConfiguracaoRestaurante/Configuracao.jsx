@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import configuracaoRestauranteService from '../../../services/configuracaorestaurante';
+import { MdAttachMoney, MdCreditCard, MdPix } from 'react-icons/md';
+import { FaMoneyBillWave } from 'react-icons/fa';
 import './configuracao.css';
 
 const diasSemana = [
@@ -15,6 +17,13 @@ const ConfiguracaoRestaurante = () => {
   const [logoPreview, setLogoPreview] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [horarios, setHorarios] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState({
+    dinheiro: false,
+    cartao_debito: false,
+    cartao_credito: false,
+    pix: false,
+    pix_key: ''
+  });
 
   useEffect(() => {
     fetchConfig();
@@ -27,8 +36,21 @@ const ConfiguracaoRestaurante = () => {
       setConfig(response.data);
       setHorarios(response.data.opening_hours || []);
       setLogoPreview(response.data.business_photo || null);
+      
+      // Inicializa os métodos de pagamento com os dados do servidor
+      if (response.data.payment_methods) {
+        setPaymentMethods({
+          dinheiro: response.data.payment_methods.dinheiro || false,
+          cartao_debito: response.data.payment_methods.cartao_debito || false,
+          cartao_credito: response.data.payment_methods.cartao_credito || false,
+          pix: response.data.payment_methods.pix || false,
+          pix_key: response.data.payment_methods.pix_key || ''
+        });
+      }
+      
       setError(null);
     } catch (err) {
+      console.error('Erro ao carregar configurações:', err);
       setError('Erro ao carregar configurações');
       setConfig(null);
     } finally {
@@ -69,6 +91,20 @@ const ConfiguracaoRestaurante = () => {
     setHorarios(horarios.filter((_, i) => i !== idx));
   };
 
+  const handlePaymentMethodChange = (method) => {
+    setPaymentMethods(prev => ({
+      ...prev,
+      [method]: !prev[method]
+    }));
+  };
+
+  const handlePixKeyChange = (e) => {
+    setPaymentMethods(prev => ({
+      ...prev,
+      pix_key: e.target.value
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -98,28 +134,30 @@ const ConfiguracaoRestaurante = () => {
         data.append('opening_hours', JSON.stringify(horariosFormatados));
       }
 
-      console.log('Dados sendo enviados:', {
-        business_name: config.business_name,
-        business_phone: config.business_phone,
-        business_address: config.business_address,
-        business_email: config.business_email,
-        opening_hours: horarios.length > 0 ? JSON.parse(data.get('opening_hours')) : null
-      });
+      // Métodos de pagamento
+      const paymentMethodsData = {
+        dinheiro: Boolean(paymentMethods.dinheiro),
+        cartao_debito: Boolean(paymentMethods.cartao_debito),
+        cartao_credito: Boolean(paymentMethods.cartao_credito),
+        pix: Boolean(paymentMethods.pix),
+        pix_key: paymentMethods.pix_key
+      };
+      data.append('payment_methods', JSON.stringify(paymentMethodsData));
+
+      console.log('Enviando dados de pagamento:', paymentMethodsData); // Debug
 
       const response = await configuracaoRestauranteService.update(data, true);
-      console.log('Resposta do servidor:', response.data);
       
       if (response.status === 200) {
         setSuccess('Configurações salvas com sucesso!');
         setEdit(false);
         setError(null);
-        await fetchConfig();
+        await fetchConfig(); // Recarrega as configurações após salvar
       } else {
         throw new Error('Erro ao salvar configurações');
       }
     } catch (err) {
       console.error('Erro ao salvar:', err);
-      console.error('Detalhes do erro:', err.response?.data);
       const errorMessage = err.response?.data?.error || 
                           err.response?.data?.opening_hours || 
                           'Erro ao salvar configurações';
@@ -203,6 +241,70 @@ const ConfiguracaoRestaurante = () => {
               onChange={handleChange}
               disabled={!edit}
             />
+          </div>
+          <div className="configuracao-restaurante-pagamentos">
+            <h2>Formas de Pagamento</h2>
+            <div className="pagamentos-grid">
+              <div className="pagamento-item">
+                <label className="pagamento-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={paymentMethods.dinheiro}
+                    onChange={() => handlePaymentMethodChange('dinheiro')}
+                    disabled={!edit}
+                  />
+                  <FaMoneyBillWave className="payment-icon" />
+                  <span>Dinheiro</span>
+                </label>
+              </div>
+              <div className="pagamento-item">
+                <label className="pagamento-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={paymentMethods.cartao_debito}
+                    onChange={() => handlePaymentMethodChange('cartao_debito')}
+                    disabled={!edit}
+                  />
+                  <MdCreditCard className="payment-icon" />
+                  <span>Cartão de Débito</span>
+                </label>
+              </div>
+              <div className="pagamento-item">
+                <label className="pagamento-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={paymentMethods.cartao_credito}
+                    onChange={() => handlePaymentMethodChange('cartao_credito')}
+                    disabled={!edit}
+                  />
+                  <MdCreditCard className="payment-icon" />
+                  <span>Cartão de Crédito</span>
+                </label>
+              </div>
+              <div className="pagamento-item">
+                <label className="pagamento-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={paymentMethods.pix}
+                    onChange={() => handlePaymentMethodChange('pix')}
+                    disabled={!edit}
+                  />
+                  <MdPix className="payment-icon" />
+                  <span>PIX</span>
+                </label>
+                {paymentMethods.pix && edit && (
+                  <div className="pix-key-input">
+                    <label>Chave PIX</label>
+                    <input
+                      type="text"
+                      value={paymentMethods.pix_key}
+                      onChange={handlePixKeyChange}
+                      placeholder="Digite sua chave PIX"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <div className="configuracao-restaurante-horarios">
             <h2>Horários de Funcionamento</h2>

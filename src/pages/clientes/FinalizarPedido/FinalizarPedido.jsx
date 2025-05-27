@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import pedidosService from '../../../services/clientes/pedidos';
+import configuracaoRestauranteService from '../../../services/configuracaorestaurante';
 import './finalizarPedido.css';
 
 const FinalizarPedido = () => {
@@ -10,7 +11,9 @@ const FinalizarPedido = () => {
     nome: '',
     telefone: '',
     endereco: '',
-    observacoes: ''
+    observacoes: '',
+    payment_method: '',
+    change_amount: ''
   });
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,6 +21,9 @@ const FinalizarPedido = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [ultimoPedido, setUltimoPedido] = useState(null);
+  const [paymentMethods, setPaymentMethods] = useState(null);
+  const [showChangeInput, setShowChangeInput] = useState(false);
+  const [precisaTroco, setPrecisaTroco] = useState('nao');
 
   useEffect(() => {
     const salvo = localStorage.getItem('carrinhoCliente');
@@ -36,11 +42,24 @@ const FinalizarPedido = () => {
             nome: pedidos[pedidos.length - 1].cliente.nome,
             telefone: pedidos[pedidos.length - 1].cliente.telefone,
             endereco: pedidos[pedidos.length - 1].cliente.endereco,
-            observacoes: ''
+            observacoes: '',
+            payment_method: '',
+            change_amount: ''
           });
         }
       }
     }
+
+    // Carregar métodos de pagamento
+    const fetchPaymentMethods = async () => {
+      try {
+        const response = await configuracaoRestauranteService.get();
+        setPaymentMethods(response.data.payment_methods);
+      } catch (err) {
+        console.error('Erro ao carregar métodos de pagamento:', err);
+      }
+    };
+    fetchPaymentMethods();
   }, [location.search]);
 
   useEffect(() => {
@@ -75,6 +94,16 @@ const FinalizarPedido = () => {
       ...prev,
       [name]: value
     }));
+
+    if (name === 'payment_method') {
+      setShowChangeInput(value === 'dinheiro');
+      setPrecisaTroco('nao');
+      setFormData(prev => ({
+        ...prev,
+        payment_method: value,
+        change_amount: ''
+      }));
+    }
   };
 
   const formatarTelefone = (value) => {
@@ -118,7 +147,9 @@ const FinalizarPedido = () => {
         nome: ultimoPedido.cliente.nome,
         telefone: ultimoPedido.cliente.telefone,
         endereco: ultimoPedido.cliente.endereco,
-        observacoes: ''
+        observacoes: '',
+        payment_method: '',
+        change_amount: ''
       });
     }
   };
@@ -129,11 +160,27 @@ const FinalizarPedido = () => {
     setError(null);
 
     try {
+      if (!formData.payment_method) {
+        setError('Selecione uma forma de pagamento.');
+        setLoading(false);
+        return;
+      }
+      let changeAmountToSend = null;
+      if (formData.payment_method === 'dinheiro' && precisaTroco === 'sim') {
+        changeAmountToSend = formData.change_amount;
+        if (!changeAmountToSend || Number(changeAmountToSend) <= calcularTotal()) {
+          setError('Informe um valor válido para o troco.');
+          setLoading(false);
+          return;
+        }
+      }
       const pedidoData = {
         customer_name: formData.nome,
         customer_phone: formData.telefone,
         customer_address: formData.endereco,
         notes: formData.observacoes,
+        payment_method: formData.payment_method,
+        change_amount: formData.payment_method === 'dinheiro' ? changeAmountToSend : null,
         total_amount: calcularTotal(),
         items: itens.map(item => ({
           product_name: item.nome || item.name,
@@ -148,6 +195,7 @@ const FinalizarPedido = () => {
         }))
       };
 
+      console.log('pedidoData:', pedidoData);
       await pedidosService.create(pedidoData);
       
       // Salvar pedido no histórico
@@ -161,6 +209,8 @@ const FinalizarPedido = () => {
           endereco: formData.endereco
         },
         status: 'pending',
+        payment_method: formData.payment_method,
+        change_amount: formData.change_amount,
         itens: itens.map(item => ({
           nome: item.nome || item.name,
           quantidade: item.quantidade || 1,
@@ -287,6 +337,137 @@ const FinalizarPedido = () => {
           </div>
         </div>
 
+        <div className="finalizar-pedido-section">
+          <h3>Forma de Pagamento</h3>
+          <div className="payment-methods-grid">
+            {paymentMethods && (
+              <>
+                {paymentMethods.dinheiro && (
+                  <div className="payment-method-item">
+                    <label className="payment-method-radio">
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        value="dinheiro"
+                        checked={formData.payment_method === 'dinheiro'}
+                        onChange={handleChange}
+                        required
+                      />
+                      <span>Dinheiro</span>
+                    </label>
+                  </div>
+                )}
+                {paymentMethods.cartao_debito && (
+                  <div className="payment-method-item">
+                    <label className="payment-method-radio">
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        value="cartao_debito"
+                        checked={formData.payment_method === 'cartao_debito'}
+                        onChange={handleChange}
+                        required
+                      />
+                      <span>Cartão de Débito</span>
+                    </label>
+                  </div>
+                )}
+                {paymentMethods.cartao_credito && (
+                  <div className="payment-method-item">
+                    <label className="payment-method-radio">
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        value="cartao_credito"
+                        checked={formData.payment_method === 'cartao_credito'}
+                        onChange={handleChange}
+                        required
+                      />
+                      <span>Cartão de Crédito</span>
+                    </label>
+                  </div>
+                )}
+                {paymentMethods.pix && (
+                  <div className="payment-method-item">
+                    <label className="payment-method-radio">
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        value="pix"
+                        checked={formData.payment_method === 'pix'}
+                        onChange={handleChange}
+                        required
+                      />
+                      <span>PIX</span>
+                    </label>
+                    {formData.payment_method === 'pix' && paymentMethods.pix_key && (
+                      <div className="pix-info">
+                        <p>Chave PIX: {paymentMethods.pix_key}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {showChangeInput && (
+            <div className="change-amount-section">
+              <div className="change-amount-header">
+                <span role="img" aria-label="money">💰</span>
+                <h4>Precisa de troco?</h4>
+              </div>
+              <div className="change-amount-options">
+                <label className="change-option">
+                  <input 
+                    type="radio" 
+                    name="precisaTroco" 
+                    value="sim" 
+                    checked={precisaTroco==='sim'} 
+                    onChange={()=>setPrecisaTroco('sim')} 
+                  />
+                  <span className="option-label">Sim</span>
+                </label>
+                <label className="change-option">
+                  <input 
+                    type="radio" 
+                    name="precisaTroco" 
+                    value="nao" 
+                    checked={precisaTroco==='nao'} 
+                    onChange={()=>setPrecisaTroco('nao')} 
+                  />
+                  <span className="option-label">Não</span>
+                </label>
+              </div>
+              {precisaTroco === 'sim' && (
+                <div className="change-amount-input-container">
+                  <label htmlFor="change_amount" className="change-amount-label">
+                    <span role="img" aria-label="calculator">🧮</span>
+                    Troco para quanto?
+                  </label>
+                  <div className="change-amount-input-wrapper">
+                    <span className="currency-symbol">R$</span>
+                    <input
+                      type="number"
+                      id="change_amount"
+                      name="change_amount"
+                      value={formData.change_amount}
+                      onChange={handleChange}
+                      min={calcularTotal()}
+                      step="0.01"
+                      required
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <p className="change-amount-hint">
+                    Valor mínimo: R$ {calcularTotal().toFixed(2)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="finalizar-pedido-resumo">
           <h4>
             <span role="img" aria-label="cart">🛒</span> Resumo do Pedido
@@ -306,33 +487,14 @@ const FinalizarPedido = () => {
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          className="finalizar-pedido-btn" 
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <span className="loading-spinner"></span>
-              Finalizando...
-            </>
-          ) : (
-            <>
-              <span role="img" aria-label="check">✅</span>
-              Finalizar Pedido
-            </>
-          )}
-        </button>
-
-        <button 
-          type="button" 
-          className="finalizar-pedido-btn voltar-btn" 
-          onClick={handleVoltar} 
-          disabled={loading}
-        >
-          <span role="img" aria-label="back">⬅️</span>
-          Voltar
-        </button>
+        <div className="finalizar-pedido-buttons">
+          <button type="button" onClick={handleVoltar} className="voltar-button">
+            Voltar
+          </button>
+          <button type="submit" className="finalizar-button" disabled={loading}>
+            {loading ? 'Finalizando...' : 'Finalizar Pedido'}
+          </button>
+        </div>
       </form>
     </div>
   );

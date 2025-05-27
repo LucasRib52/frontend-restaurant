@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './meuspedidoscliente.css';
-import { MdArrowBack, MdReceipt, MdAccessTime, MdLocationOn, MdPhone, MdAttachMoney, MdFastfood } from 'react-icons/md';
+import { MdArrowBack, MdReceipt, MdAccessTime, MdLocationOn, MdPhone, MdAttachMoney, MdFastfood, MdPix, MdCreditCard, MdClose } from 'react-icons/md';
 import pedidosRestauranteService from '../../../services/pedidosrestaurante';
+import configuracaoRestauranteService from '../../../services/configuracaorestaurante';
 
 const statusLabels = {
   pending: 'Em Espera',
@@ -21,10 +22,42 @@ const statusColors = {
   cancelled: '#c62828',
 };
 
+const getPaymentLabel = (method) => {
+  switch (method) {
+    case 'dinheiro':
+      return <><MdAttachMoney style={{verticalAlign:'middle'}}/> Dinheiro</>;
+    case 'cartao_debito':
+      return <><MdCreditCard style={{verticalAlign:'middle'}}/> Cartão de Débito</>;
+    case 'cartao_credito':
+      return <><MdCreditCard style={{verticalAlign:'middle'}}/> Cartão de Crédito</>;
+    case 'pix':
+      return <><MdPix style={{verticalAlign:'middle'}}/> PIX</>;
+    default:
+      return 'Não informado';
+  }
+};
+
 const MeusPedidosCliente = () => {
   const [pedidos, setPedidos] = useState([]);
+  const [pixModalOpen, setPixModalOpen] = useState(false);
+  const [pixKey, setPixKey] = useState('');
+  const [pixPedidoIndex, setPixPedidoIndex] = useState(null);
+  const [loadingPix, setLoadingPix] = useState(false);
   const navigate = useNavigate();
   const intervalRef = useRef();
+
+  // Buscar chave PIX do backend
+  const fetchPixKey = async () => {
+    setLoadingPix(true);
+    try {
+      const response = await configuracaoRestauranteService.get();
+      setPixKey(response.data.payment_methods?.pix_key || '');
+    } catch (e) {
+      setPixKey('Não foi possível obter a chave PIX.');
+    } finally {
+      setLoadingPix(false);
+    }
+  };
 
   // Função para sincronizar status com backend
   const sincronizarStatus = async (pedidosLocal) => {
@@ -138,9 +171,41 @@ const MeusPedidosCliente = () => {
                   <MdAttachMoney />
                   <span>Total: R$ {calcularTotal(pedido.itens).toFixed(2)}</span>
                 </div>
+                <div className="meus-pedidos-card-pagamento">
+                  <strong>Pagamento:</strong> {getPaymentLabel(pedido.payment_method)}
+                  {pedido.payment_method === 'pix' && (
+                    <button
+                      className="ver-pix-btn"
+                      onClick={async () => {
+                        setPixPedidoIndex(index);
+                        await fetchPixKey();
+                        setPixModalOpen(true);
+                      }}
+                    >
+                      Ver PIX
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {/* Modal PIX */}
+      {pixModalOpen && (
+        <div className="pix-modal-overlay" onClick={() => setPixModalOpen(false)}>
+          <div className="pix-modal" onClick={e => e.stopPropagation()}>
+            <button className="pix-modal-close" onClick={() => setPixModalOpen(false)}><MdClose size={24}/></button>
+            <div className="pix-modal-content">
+              <MdPix size={48} style={{color:'#00796b', marginBottom:8}}/>
+              <h2>Chave PIX do Restaurante</h2>
+              {loadingPix ? (
+                <p>Carregando...</p>
+              ) : (
+                <p className="pix-modal-key">{pixKey || 'Chave não cadastrada.'}</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
