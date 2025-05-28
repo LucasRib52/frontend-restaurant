@@ -83,7 +83,17 @@ const ConfiguracaoRestaurante = () => {
       const opening = novos[idx].opening_time;
       const closing = novos[idx].closing_time;
       if (opening && closing) {
-        novos[idx].next_day_closing = closing < opening;
+        // Converte para objetos Date para comparação correta
+        const [openingHours, openingMinutes] = opening.split(':').map(Number);
+        const [closingHours, closingMinutes] = closing.split(':').map(Number);
+        
+        const openingTime = new Date();
+        openingTime.setHours(openingHours, openingMinutes);
+        
+        const closingTime = new Date();
+        closingTime.setHours(closingHours, closingMinutes);
+        
+        novos[idx].next_day_closing = closingTime < openingTime;
       }
     }
     
