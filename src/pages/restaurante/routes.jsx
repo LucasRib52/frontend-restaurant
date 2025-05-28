@@ -5,11 +5,21 @@ import LayoutAdmin from '../../components/restaurante/LayoutAdmin/LayoutAdmin';
 import ProdutoRestaurante from './ProdutoRestaurante/ProdutoRestaurante';
 import PedidosRestaurante from './PedidosRestaurante/PedidosRestaurante';
 import ConfiguracaoRestaurante from './ConfiguracaoRestaurante/Configuracao';
+import PrivateRoute from '../../components/PrivateRoute';
+import Login from '../login/Login';
 
 export const restauranteRoutes = [
   {
+    path: '/login',
+    element: <Login />
+  },
+  {
     path: '/restaurante',
-    element: <LayoutAdmin />,
+    element: (
+      <PrivateRoute>
+        <LayoutAdmin />
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true,

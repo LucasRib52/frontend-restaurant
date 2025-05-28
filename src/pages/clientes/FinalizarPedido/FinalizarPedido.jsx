@@ -107,14 +107,20 @@ const FinalizarPedido = () => {
   };
 
   const formatarTelefone = (value) => {
+    // Remove tudo que não for número
     const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 11) {
-      if (numbers.length <= 2) return numbers;
-      if (numbers.length <= 6) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
-      if (numbers.length <= 10) return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
-      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+    
+    // Limita a 11 dígitos (DDD + número)
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // Formata o número
+    if (limitedNumbers.length <= 2) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 7) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`;
+    } else {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`;
     }
-    return value;
   };
 
   const handleTelefoneChange = (e) => {
@@ -283,19 +289,17 @@ const FinalizarPedido = () => {
               placeholder="Digite seu nome completo"
             />
           </div>
-          <div className="input-group">
-            <label htmlFor="telefone" className="finalizar-pedido-label">
-              <span role="img" aria-label="phone">📱</span> Telefone
-            </label>
+          <div className="form-group">
+            <label htmlFor="telefone">Telefone</label>
             <input
-              type="text"
+              type="tel"
               id="telefone"
               name="telefone"
-              className="finalizar-pedido-input"
               value={formData.telefone}
               onChange={handleTelefoneChange}
-              required
               placeholder="(00) 00000-0000"
+              maxLength={15}
+              required
             />
           </div>
         </div>

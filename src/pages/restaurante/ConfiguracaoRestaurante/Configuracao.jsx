@@ -105,6 +105,31 @@ const ConfiguracaoRestaurante = () => {
     }));
   };
 
+  const formatPhoneNumber = (value) => {
+    // Remove tudo que não for número
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (DDD + número)
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // Formata o número
+    if (limitedNumbers.length <= 2) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 7) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`;
+    } else {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`;
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const formattedValue = formatPhoneNumber(e.target.value);
+    setConfig(prev => ({
+      ...prev,
+      business_phone: formattedValue
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -215,11 +240,13 @@ const ConfiguracaoRestaurante = () => {
           <div className="configuracao-restaurante-campo">
             <label>Telefone</label>
             <input
-              type="text"
+              type="tel"
               name="business_phone"
               value={config.business_phone || ''}
-              onChange={handleChange}
+              onChange={handlePhoneChange}
               disabled={!edit}
+              placeholder="(00) 00000-0000"
+              maxLength={15}
             />
           </div>
           <div className="configuracao-restaurante-campo">
