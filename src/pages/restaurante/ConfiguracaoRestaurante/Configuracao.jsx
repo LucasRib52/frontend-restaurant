@@ -77,13 +77,30 @@ const ConfiguracaoRestaurante = () => {
   const handleHorarioChange = (idx, field, value) => {
     const novos = [...horarios];
     novos[idx][field] = value;
+    
+    // Se estiver alterando horários, verifica se precisa marcar next_day_closing
+    if (field === 'opening_time' || field === 'closing_time') {
+      const opening = novos[idx].opening_time;
+      const closing = novos[idx].closing_time;
+      if (opening && closing) {
+        novos[idx].next_day_closing = closing < opening;
+      }
+    }
+    
     setHorarios(novos);
   };
 
   const addHorario = () => {
     setHorarios([
       ...horarios,
-      { day_of_week: 0, opening_time: '08:00', closing_time: '18:00', is_open: true, is_holiday: false }
+      { 
+        day_of_week: 0, 
+        opening_time: '08:00', 
+        closing_time: '18:00', 
+        is_open: true, 
+        is_holiday: false,
+        next_day_closing: false 
+      }
     ]);
   };
 
@@ -154,7 +171,8 @@ const ConfiguracaoRestaurante = () => {
           opening_time: h.opening_time || '08:00',
           closing_time: h.closing_time || '18:00',
           is_open: Boolean(h.is_open),
-          is_holiday: Boolean(h.is_holiday)
+          is_holiday: Boolean(h.is_holiday),
+          next_day_closing: Boolean(h.next_day_closing)
         }));
         data.append('opening_hours', JSON.stringify(horariosFormatados));
       }
