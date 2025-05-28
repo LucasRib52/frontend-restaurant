@@ -90,20 +90,41 @@ const HomeClientes = () => {
     return jsDay === 0 ? 6 : jsDay - 1;
   };
 
-  const isOpenNow = (horario) => {
-    if (!horario) return false;
+  const isOpenNow = (horarios) => {
+    if (!horarios || horarios.length === 0) return false;
     const now = new Date();
-    const [hOpen, mOpen] = horario.opening_time.split(':').map(Number);
-    const [hClose, mClose] = horario.closing_time.split(':').map(Number);
-    const open = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hOpen, mOpen);
-    const close = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hClose, mClose);
-    return now >= open && now <= close && !horario.is_holiday;
+
+    return horarios.some(horario => {
+      if (!horario.is_open || horario.is_holiday) return false;
+
+      const [hOpen, mOpen] = horario.opening_time.split(':').map(Number);
+      const [hClose, mClose] = horario.closing_time.split(':').map(Number);
+
+      // Dia da semana do horário
+      const diaHorario = Number(horario.day_of_week);
+
+      // Data de abertura
+      const dataAbertura = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hOpen, mOpen);
+      // Data de fechamento
+      let dataFechamento = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hClose, mClose);
+
+      // Se fecha no dia seguinte, soma 1 dia no fechamento
+      if (horario.next_day_closing || dataFechamento <= dataAbertura) {
+        dataFechamento.setDate(dataFechamento.getDate() + 1);
+      }
+
+      // Ajusta o dia de abertura para o dia correto da semana
+      const hoje = now.getDay() === 0 ? 6 : now.getDay() - 1; // 0=Domingo, 1=Segunda...
+      const diffDias = hoje - diaHorario;
+      dataAbertura.setDate(dataAbertura.getDate() - diffDias);
+      dataFechamento.setDate(dataAbertura.getDate() + (horario.next_day_closing || dataFechamento <= dataAbertura ? 1 : 0));
+
+      return now >= dataAbertura && now <= dataFechamento;
+    });
   };
 
   // Lógica para horários
-  const hojeIdx = configuracao?.opening_hours ? getHojeIndex() : null;
-  const horarioHoje = configuracao?.opening_hours ? configuracao.opening_hours[hojeIdx] : null;
-  const abertoAgora = horarioHoje && isOpenNow(horarioHoje);
+  const abertoAgora = configuracao?.opening_hours ? isOpenNow(configuracao.opening_hours) : false;
 
   return (
     <div className="home-clientes-container">
@@ -151,7 +172,7 @@ const HomeClientes = () => {
             </div>
             <ul className="horarios-badges-list-modern">
               {configuracao.opening_hours.map((hora, idx) => {
-                const isHoje = idx === hojeIdx;
+                const isHoje = idx === getHojeIndex();
                 return (
                   <li key={hora.id} className={`horario-badge-modern${isHoje ? ' horario-badge-modern-hoje' : ''}`}> 
                     <span className="horario-dia-modern">{DIAS_SEMANA[hora.day_of_week]}</span>
