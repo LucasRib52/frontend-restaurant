@@ -68,7 +68,15 @@ const ProdutoRestaurante = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Iniciando submissão do produto:', produtoAtual);
+      
       if (!produtoAtual.name || !produtoAtual.category || !produtoAtual.price || !produtoAtual.description) {
+        console.log('Campos obrigatórios faltando:', {
+          name: produtoAtual.name,
+          category: produtoAtual.category,
+          price: produtoAtual.price,
+          description: produtoAtual.description
+        });
         setError('Por favor, preencha todos os campos obrigatórios');
         return;
       }
@@ -79,6 +87,13 @@ const ProdutoRestaurante = () => {
       data.append('price', parseFloat(produtoAtual.price).toFixed(2));
       data.append('description', produtoAtual.description.trim());
       data.append('is_active', true);
+      
+      console.log('Dados básicos do produto:', {
+        name: produtoAtual.name.trim(),
+        category_id: produtoAtual.category,
+        price: parseFloat(produtoAtual.price).toFixed(2),
+        description: produtoAtual.description.trim()
+      });
       
       if (produtoAtual.image && produtoAtual.image instanceof File) {
         if (!produtoAtual.image.type || !produtoAtual.image.type.startsWith('image/')) {
@@ -99,12 +114,14 @@ const ProdutoRestaurante = () => {
           type: produtoAtual.image.type
         });
         data.append('image', newFile);
+        console.log('Imagem anexada:', newFile.name);
       }
 
       let ingredientIndex = 0;
       const ingredientesEnviados = [];
       produtoAtual.ingredientGroups.forEach(group => {
         if (!group.groupName.trim()) {
+          console.log('Grupo sem nome encontrado:', group);
           setError('Por favor, preencha o nome de todos os grupos.');
           return;
         }
@@ -125,19 +142,28 @@ const ProdutoRestaurante = () => {
 
       console.log('Grupos de ingredientes sendo enviados:', produtoAtual.ingredientGroups);
       console.log('Ingredientes sendo enviados:', ingredientesEnviados);
+      console.log('FormData completo:', Object.fromEntries(data.entries()));
 
-      if (error) return; // Se houver erro, não continua
+      if (error) {
+        console.log('Erro encontrado, abortando submissão:', error);
+        return;
+      }
 
+      console.log('Enviando requisição para o backend...');
       if (produtoAtual.id) {
+        console.log('Atualizando produto existente:', produtoAtual.id);
         await produtosRestauranteService.update(produtoAtual.id, data, true);
       } else {
+        console.log('Criando novo produto');
         await produtosRestauranteService.create(data, true);
       }
+      console.log('Produto salvo com sucesso!');
       setModalOpen(false);
       await fetchProdutos();
       setError(null);
     } catch (err) {
-      console.error('Erro ao salvar produto:', err);
+      console.error('Erro detalhado ao salvar produto:', err);
+      console.error('Resposta do servidor:', err.response?.data);
       setError(err.response?.data?.message || 'Erro ao salvar produto. Verifique os dados e tente novamente.');
     }
   };
