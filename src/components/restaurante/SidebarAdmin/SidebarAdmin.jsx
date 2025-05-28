@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaList, FaUsers, FaCog, FaShoppingBag, FaClipboardList } from 'react-icons/fa';
+import { FaHome, FaList, FaUsers, FaCog, FaShoppingBag, FaClipboardList, FaSignOutAlt } from 'react-icons/fa';
 import './sidebarAdmin.css';
+import authService from '../../../services/authService';
 
 const SidebarAdmin = () => {
   const location = useLocation();
@@ -34,6 +35,10 @@ const SidebarAdmin = () => {
     }
   ];
 
+  const handleLogout = () => {
+    authService.logout();
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -51,6 +56,13 @@ const SidebarAdmin = () => {
           </Link>
         ))}
       </nav>
+      <button
+        className="sidebar-logout-mobile"
+        onClick={handleLogout}
+        aria-label="Sair"
+      >
+        <FaSignOutAlt />
+      </button>
     </div>
   );
 };
