@@ -102,19 +102,31 @@ const ProdutoRestaurante = () => {
       }
 
       let ingredientIndex = 0;
+      const ingredientesEnviados = [];
       produtoAtual.ingredientGroups.forEach(group => {
+        if (!group.groupName.trim()) {
+          setError('Por favor, preencha o nome de todos os grupos.');
+          return;
+        }
         group.ingredients.forEach(ing => {
           if (ing.name.trim()) {
-            data.append(`ingredients[${ingredientIndex}]`, JSON.stringify({
+            const ingrediente = {
               name: ing.name.trim(),
               category: group.groupName.trim(),
               isRequired: group.isRequired,
               maxQuantity: group.maxQuantity
-            }));
+            };
+            ingredientesEnviados.push(ingrediente);
+            data.append(`ingredients[${ingredientIndex}]`, JSON.stringify(ingrediente));
             ingredientIndex++;
           }
         });
       });
+
+      console.log('Grupos de ingredientes sendo enviados:', produtoAtual.ingredientGroups);
+      console.log('Ingredientes sendo enviados:', ingredientesEnviados);
+
+      if (error) return; // Se houver erro, não continua
 
       if (produtoAtual.id) {
         await produtosRestauranteService.update(produtoAtual.id, data, true);
