@@ -194,6 +194,14 @@ const ProdutoRestaurante = () => {
   };
 
   const addGroup = () => {
+    // Verifica se já existe um grupo com nome vazio
+    const temGrupoVazio = produtoAtual.ingredientGroups.some(group => !group.groupName.trim());
+    
+    if (temGrupoVazio) {
+      setError('Por favor, preencha o nome do grupo atual antes de adicionar um novo.');
+      return;
+    }
+
     setProdutoAtual({
       ...produtoAtual,
       ingredientGroups: [
@@ -210,6 +218,19 @@ const ProdutoRestaurante = () => {
 
   const handleGroupChange = (groupIdx, field, value) => {
     const newGroups = [...produtoAtual.ingredientGroups];
+    
+    // Se estiver alterando o nome do grupo, verifica se já existe
+    if (field === 'groupName') {
+      const nomeExistente = newGroups.some((group, idx) => 
+        idx !== groupIdx && group.groupName.toLowerCase() === value.toLowerCase()
+      );
+      
+      if (nomeExistente) {
+        setError('Já existe um grupo com este nome. Por favor, escolha outro nome.');
+        return;
+      }
+    }
+    
     newGroups[groupIdx][field] = value;
     setProdutoAtual({ ...produtoAtual, ingredientGroups: newGroups });
   };
@@ -523,7 +544,7 @@ const ProdutoRestaurante = () => {
                               onChange={(e) => handleGroupChange(groupIdx, 'maxQuantity', parseInt(e.target.value))}
                               className="max-quantity-select"
                             >
-                              {[...Array(10)].map((_, i) => (
+                              {[...Array(15)].map((_, i) => (
                                 <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'item' : 'itens'}</option>
                               ))}
                             </select>
