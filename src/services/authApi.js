@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const authApi = axios.create({
-  baseURL: 'http://192.168.1.65:8000',
+  baseURL: 'https://restaurantesystem.pythonanywhere.com',
   headers: {
     'Content-Type': 'application/json',
   },
