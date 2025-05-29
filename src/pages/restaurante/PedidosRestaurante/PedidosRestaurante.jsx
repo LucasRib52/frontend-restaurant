@@ -152,7 +152,7 @@ const PedidosRestaurante = () => {
         // Ingredientes agrupados por grupo
         if (item.ingredients && item.ingredients.length > 0) {
           const grupos = item.ingredients.reduce((acc, ing) => {
-            const group = ing.ingredient.category?.name || 'Outros';
+            const group = ing.group_name || 'Outros';
             if (!acc[group]) acc[group] = [];
             acc[group].push(ing.ingredient.name);
             return acc;
@@ -329,7 +329,7 @@ const PedidosRestaurante = () => {
                       <ul>
                         {Object.entries(
                           item.ingredients.reduce((acc, ing) => {
-                            const group = ing.ingredient.category?.name || 'Outros';
+                            const group = ing.group_name || 'Outros';
                             if (!acc[group]) acc[group] = [];
                             acc[group].push(ing.ingredient.name);
                             return acc;

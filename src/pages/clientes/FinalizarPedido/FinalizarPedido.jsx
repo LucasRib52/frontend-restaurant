@@ -11,7 +11,6 @@ const FinalizarPedido = () => {
     nome: '',
     telefone: '',
     endereco: '',
-    observacoes: '',
     payment_method: '',
     change_amount: ''
   });
@@ -42,7 +41,6 @@ const FinalizarPedido = () => {
             nome: pedidos[pedidos.length - 1].cliente.nome,
             telefone: pedidos[pedidos.length - 1].cliente.telefone,
             endereco: pedidos[pedidos.length - 1].cliente.endereco,
-            observacoes: '',
             payment_method: '',
             change_amount: ''
           });
@@ -153,7 +151,6 @@ const FinalizarPedido = () => {
         nome: ultimoPedido.cliente.nome,
         telefone: ultimoPedido.cliente.telefone,
         endereco: ultimoPedido.cliente.endereco,
-        observacoes: '',
         payment_method: '',
         change_amount: ''
       });
@@ -184,20 +181,21 @@ const FinalizarPedido = () => {
         customer_name: formData.nome,
         customer_phone: formData.telefone,
         customer_address: formData.endereco,
-        notes: formData.observacoes,
-        payment_method: formData.payment_method,
-        change_amount: formData.payment_method === 'dinheiro' ? changeAmountToSend : null,
         total_amount: calcularTotal(),
+        payment_method: formData.payment_method,
+        change_amount: formData.payment_method === 'dinheiro' ? parseFloat(formData.change_amount) : null,
         items: itens.map(item => ({
+          product_id: item.id,
           product_name: item.nome || item.name,
           quantity: item.quantidade || 1,
           unit_price: getPreco(item),
           notes: item.observacoes || '',
-          ingredients: item.ingredientes?.map(ing => ({
+          ingredients: (item.ingredientes || item.adicionais || []).map(ing => ({
             ingredient: ing.id,
+            product_id: item.id,
             is_added: true,
             price: ing.price || 0
-          })) || []
+          }))
         }))
       };
 
@@ -319,24 +317,6 @@ const FinalizarPedido = () => {
               onChange={handleChange}
               required
               placeholder="Rua, número, bairro, complemento"
-            />
-          </div>
-        </div>
-
-        <div className="finalizar-pedido-section">
-          <h3>Observações</h3>
-          <div className="input-group">
-            <label htmlFor="observacoes" className="finalizar-pedido-label">
-              <span role="img" aria-label="note">📝</span> Observações
-            </label>
-            <textarea
-              id="observacoes"
-              name="observacoes"
-              className="finalizar-pedido-input"
-              value={formData.observacoes}
-              onChange={handleChange}
-              placeholder="Alguma observação sobre o pedido?"
-              rows="3"
             />
           </div>
         </div>

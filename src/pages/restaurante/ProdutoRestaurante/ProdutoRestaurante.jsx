@@ -129,7 +129,7 @@ const ProdutoRestaurante = () => {
           if (ing.name.trim()) {
             const ingrediente = {
               name: ing.name.trim(),
-              category: group.groupName.trim(),
+              groupName: group.groupName.trim(),
               isRequired: group.isRequired,
               maxQuantity: group.maxQuantity
             };
@@ -185,7 +185,7 @@ const ProdutoRestaurante = () => {
       if (ingredientes.length > 0) {
         const groupMap = {};
         ingredientes.forEach((item) => {
-          const groupName = item.ingredient.category?.name || 'Sem grupo';
+          const groupName = (typeof item.group_name === 'string' && item.group_name.trim() !== '') ? item.group_name : '';
           if (!groupMap[groupName]) {
             groupMap[groupName] = {
               groupName,
@@ -195,7 +195,8 @@ const ProdutoRestaurante = () => {
             };
           }
           groupMap[groupName].ingredients.push({
-            name: item.ingredient.name
+            name: item.ingredient.name,
+            id: item.ingredient.id
           });
         });
         ingredientGroups = Object.values(groupMap);

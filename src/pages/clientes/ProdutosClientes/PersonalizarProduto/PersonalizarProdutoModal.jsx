@@ -15,13 +15,13 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
         const response = await produtosClienteService.getProduto(produto.id);
         const ingredientesDoProduto = response.data.ingredients || [];
         
-        // Agrupar ingredientes por categoria
+        // Agrupar ingredientes por grupo_name do backend
         const ingredientesAgrupados = ingredientesDoProduto.reduce((acc, item) => {
-          const categoria = item.ingredient.category?.name || 'Outros';
-          if (!acc[categoria]) {
-            acc[categoria] = [];
+          const grupo = item.group_name || 'Outros';
+          if (!acc[grupo]) {
+            acc[grupo] = [];
           }
-          acc[categoria].push({
+          acc[grupo].push({
             id: item.ingredient.id,
             name: item.ingredient.name,
             price: parseFloat(item.ingredient.price),
