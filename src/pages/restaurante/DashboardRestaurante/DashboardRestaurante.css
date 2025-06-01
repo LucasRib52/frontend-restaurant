@@ -1064,15 +1064,69 @@ body, html {
 
 @media (max-width: 600px) {
   .header-content-row {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
     gap: 10px;
+    position: relative;
   }
+
   .filter-dropdown {
-    left: unset;
-    right: 0;
-    min-width: 180px;
-    width: 90vw;
-    top: 50px;
+    position: fixed;
+    top: auto;
+    right: 10px;
+    left: 10px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+    min-width: unset;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: dropdownSlideUp 0.3s cubic-bezier(.4,0,.2,1);
+  }
+
+  @keyframes dropdownSlideUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  .dropdown-group {
+    padding: 12px 16px;
+  }
+
+  .dropdown-item {
+    padding: 12px 16px;
+    font-size: 1.1rem;
+  }
+
+  .filter-icon-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .filter-dropdown {
+    right: 5px;
+    left: 5px;
+    width: calc(100% - 10px);
+    bottom: 5px;
+  }
+
+  .dropdown-group {
+    padding: 10px 14px;
+  }
+
+  .dropdown-item {
+    padding: 10px 14px;
+    font-size: 1rem;
   }
 } 
