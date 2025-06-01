@@ -4,7 +4,7 @@ import './homeclientes.css';
 import ProdutosCliente from '../../../pages/clientes/ProdutosClientes/ProdutosCliente';
 import CarrinhoCliente from '../../../pages/clientes/CarrinhoClientes/CarrinhoCliente';
 import configuracaoRestauranteService from '../../../services/configuracaorestaurante';
-import { MdLocationOn, MdPhone, MdEmail, MdLocalShipping, MdAccessTime, MdCheckCircle, MdCancel, MdReceipt } from 'react-icons/md';
+import { MdLocationOn, MdPhone, MdEmail, MdLocalShipping, MdAccessTime, MdCheckCircle, MdCancel, MdReceipt, MdHolidayVillage } from 'react-icons/md';
 
 const DIAS_SEMANA = {
   0: 'Segunda',
@@ -93,15 +93,17 @@ const HomeClientes = () => {
   const isOpenNow = (horarios) => {
     if (!horarios || horarios.length === 0) return false;
     const now = new Date();
+    const hoje = now.getDay() === 0 ? 6 : now.getDay() - 1; // 0=Domingo, 1=Segunda...
 
-    return horarios.some(horario => {
+    // Filtra só os horários do dia atual
+    const horariosHoje = horarios.filter(horario => Number(horario.day_of_week) === hoje);
+    if (horariosHoje.length === 0) return false;
+
+    return horariosHoje.some(horario => {
       if (!horario.is_open || horario.is_holiday) return false;
 
       const [hOpen, mOpen] = horario.opening_time.split(':').map(Number);
       const [hClose, mClose] = horario.closing_time.split(':').map(Number);
-
-      // Dia da semana do horário
-      const diaHorario = Number(horario.day_of_week);
 
       // Data de abertura
       const dataAbertura = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hOpen, mOpen);
@@ -112,12 +114,6 @@ const HomeClientes = () => {
       if (horario.next_day_closing || dataFechamento <= dataAbertura) {
         dataFechamento.setDate(dataFechamento.getDate() + 1);
       }
-
-      // Ajusta o dia de abertura para o dia correto da semana
-      const hoje = now.getDay() === 0 ? 6 : now.getDay() - 1; // 0=Domingo, 1=Segunda...
-      const diffDias = hoje - diaHorario;
-      dataAbertura.setDate(dataAbertura.getDate() - diffDias);
-      dataFechamento.setDate(dataAbertura.getDate() + (horario.next_day_closing || dataFechamento <= dataAbertura ? 1 : 0));
 
       return now >= dataAbertura && now <= dataFechamento;
     });
@@ -171,13 +167,18 @@ const HomeClientes = () => {
               <span className="horarios-card-title">Horários de Funcionamento</span>
             </div>
             <ul className="horarios-badges-list-modern">
-              {configuracao.opening_hours.map((hora, idx) => {
-                const isHoje = idx === getHojeIndex();
+              {Object.entries(DIAS_SEMANA).map(([diaIdx, diaNome]) => {
+                const horario = configuracao.opening_hours.find(h => Number(h.day_of_week) === Number(diaIdx));
+                const isHoje = getHojeIndex() === Number(diaIdx);
                 return (
-                  <li key={hora.id} className={`horario-badge-modern${isHoje ? ' horario-badge-modern-hoje' : ''}`}> 
-                    <span className="horario-dia-modern">{DIAS_SEMANA[hora.day_of_week]}</span>
-                    <span className="horario-horas-modern">{hora.opening_time} às {hora.closing_time}</span>
-                    {hora.is_holiday && <span className="horario-badge-modern-feriado"><MdHolidayVillage style={{verticalAlign:'middle',marginRight:2}}/>Feriado</span>}
+                  <li key={diaIdx} className={`horario-badge-modern${isHoje ? ' horario-badge-modern-hoje' : ''}`}> 
+                    <span className="horario-dia-modern">{diaNome}</span>
+                    {horario && horario.is_open && !horario.is_holiday ? (
+                      <span className="horario-horas-modern">{horario.opening_time} às {horario.closing_time}</span>
+                    ) : (
+                      <span className="horario-horas-modern">Fechado</span>
+                    )}
+                    {horario && horario.is_holiday && <span className="horario-badge-modern-feriado"><MdHolidayVillage style={{verticalAlign:'middle',marginRight:2}}/>Feriado</span>}
                   </li>
                 );
               })}
