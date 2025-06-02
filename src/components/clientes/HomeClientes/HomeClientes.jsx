@@ -100,30 +100,33 @@ const HomeClientes = () => {
     const horariosRelevantes = horarios.filter(horario => {
       if (!horario.is_open || horario.is_holiday) return false;
       
-      // Se o horário fecha no dia seguinte
+      const horarioDay = Number(horario.day_of_week);
+      const horarioAbertura = horario.opening_time;
+      const horarioFechamento = horario.closing_time;
+
+      // Se o horário fecha no dia seguinte (next_day_closing)
       if (horario.next_day_closing) {
         // Se estamos no dia da abertura
-        if (current_day === Number(horario.day_of_week)) {
-          // Se já passou do horário de abertura
-          return current_time >= horario.opening_time;
+        if (current_day === horarioDay) {
+          return current_time >= horarioAbertura;
         }
         // Se estamos no dia do fechamento
-        else if (current_day === (Number(horario.day_of_week) + 1) % 7) {
-          // Se ainda não passou do horário de fechamento
-          return current_time <= horario.closing_time;
-        }
-        // Se estamos em um dia entre a abertura e o fechamento (para casos de múltiplos dias)
-        else if (Number(horario.day_of_week) > current_day) {
-          // Se o dia de abertura é depois do dia atual (ex: domingo > segunda)
-          // significa que o período começou no dia anterior
-          return true;
+        else if (current_day === (horarioDay + 1) % 7) {
+          return current_time <= horarioFechamento;
         }
         return false;
       } else {
         // Se o fechamento é no mesmo dia
-        return current_day === Number(horario.day_of_week) && 
-               horario.opening_time <= current_time && 
-               current_time <= horario.closing_time;
+        if (current_day === horarioDay) {
+          // Se o horário de abertura é maior que o de fechamento (ex: 18:00 > 09:30)
+          // significa que o período começa no dia anterior
+          if (horarioAbertura > horarioFechamento) {
+            return current_time >= horarioAbertura || current_time <= horarioFechamento;
+          }
+          // Horário normal no mesmo dia
+          return current_time >= horarioAbertura && current_time <= horarioFechamento;
+        }
+        return false;
       }
     });
 
