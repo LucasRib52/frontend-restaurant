@@ -204,6 +204,14 @@
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
+.next-day-indicator {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .horario-status {
   display: flex;
   gap: 1rem;

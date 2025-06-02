@@ -87,13 +87,15 @@ const ConfiguracaoRestaurante = () => {
         const [openingHours, openingMinutes] = opening.split(':').map(Number);
         const [closingHours, closingMinutes] = closing.split(':').map(Number);
         
-        const openingTime = new Date();
-        openingTime.setHours(openingHours, openingMinutes);
-        
-        const closingTime = new Date();
-        closingTime.setHours(closingHours, closingMinutes);
-        
-        novos[idx].next_day_closing = closingTime < openingTime;
+        // Se o horário de fechamento for menor que o de abertura, 
+        // ou se o horário de fechamento for antes das 12h e o de abertura depois das 12h,
+        // marca como fechamento no dia seguinte
+        if (closingHours < openingHours || 
+            (closingHours < 12 && openingHours >= 12)) {
+          novos[idx].next_day_closing = true;
+        } else {
+          novos[idx].next_day_closing = false;
+        }
       }
     }
     
@@ -401,6 +403,9 @@ const ConfiguracaoRestaurante = () => {
                         onChange={e => handleHorarioChange(idx, 'closing_time', e.target.value)}
                         disabled={!edit}
                       />
+                      {h.next_day_closing && (
+                        <span className="next-day-indicator">(Fechamento no dia seguinte)</span>
+                      )}
                     </div>
                   </div>
                   <div className="horario-status">

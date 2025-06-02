@@ -93,30 +93,41 @@ const HomeClientes = () => {
   const isOpenNow = (horarios) => {
     if (!horarios || horarios.length === 0) return false;
     const now = new Date();
-    const hoje = now.getDay() === 0 ? 6 : now.getDay() - 1; // 0=Domingo, 1=Segunda...
+    const current_time = now.toTimeString().slice(0, 5); // HH:mm
+    const current_day = now.getDay() === 0 ? 6 : now.getDay() - 1; // 0=Domingo, 1=Segunda...
 
-    // Filtra só os horários do dia atual
-    const horariosHoje = horarios.filter(horario => Number(horario.day_of_week) === hoje);
-    if (horariosHoje.length === 0) return false;
-
-    return horariosHoje.some(horario => {
+    // Filtra só os horários do dia atual ou do dia anterior (se fechar no dia seguinte)
+    const horariosRelevantes = horarios.filter(horario => {
       if (!horario.is_open || horario.is_holiday) return false;
-
-      const [hOpen, mOpen] = horario.opening_time.split(':').map(Number);
-      const [hClose, mClose] = horario.closing_time.split(':').map(Number);
-
-      // Data de abertura
-      const dataAbertura = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hOpen, mOpen);
-      // Data de fechamento
-      let dataFechamento = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hClose, mClose);
-
-      // Se fecha no dia seguinte, soma 1 dia no fechamento
-      if (horario.next_day_closing || dataFechamento <= dataAbertura) {
-        dataFechamento.setDate(dataFechamento.getDate() + 1);
+      
+      // Se o horário fecha no dia seguinte
+      if (horario.next_day_closing) {
+        // Se estamos no dia da abertura
+        if (current_day === Number(horario.day_of_week)) {
+          // Se já passou do horário de abertura
+          return current_time >= horario.opening_time;
+        }
+        // Se estamos no dia do fechamento
+        else if (current_day === (Number(horario.day_of_week) + 1) % 7) {
+          // Se ainda não passou do horário de fechamento
+          return current_time <= horario.closing_time;
+        }
+        // Se estamos em um dia entre a abertura e o fechamento (para casos de múltiplos dias)
+        else if (Number(horario.day_of_week) > current_day) {
+          // Se o dia de abertura é depois do dia atual (ex: domingo > segunda)
+          // significa que o período começou no dia anterior
+          return true;
+        }
+        return false;
+      } else {
+        // Se o fechamento é no mesmo dia
+        return current_day === Number(horario.day_of_week) && 
+               horario.opening_time <= current_time && 
+               current_time <= horario.closing_time;
       }
-
-      return now >= dataAbertura && now <= dataFechamento;
     });
+
+    return horariosRelevantes.length > 0;
   };
 
   // Lógica para horários
