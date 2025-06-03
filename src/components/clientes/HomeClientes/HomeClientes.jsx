@@ -355,9 +355,6 @@ const HomeClientes = () => {
 
                   <div className="promocao-card__price-row">
                     <span className="promocao-card__price">{formatCurrency(promo.price)}</span>
-                    <span className="promocao-card__savings">
-                      Economia de {formatCurrency(promo.savings_amount)}
-                    </span>
                   </div>
                   
                   <div className="promocao-card__items">
