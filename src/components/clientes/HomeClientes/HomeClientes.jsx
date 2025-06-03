@@ -4,7 +4,10 @@ import './homeclientes.css';
 import ProdutosCliente from '../../../pages/clientes/ProdutosClientes/ProdutosCliente';
 import CarrinhoCliente from '../../../pages/clientes/CarrinhoClientes/CarrinhoCliente';
 import configuracaoRestauranteService from '../../../services/configuracaorestaurante';
-import { MdLocationOn, MdPhone, MdEmail, MdLocalShipping, MdAccessTime, MdCheckCircle, MdCancel, MdReceipt, MdHolidayVillage } from 'react-icons/md';
+import promotionService from '../../../services/promotionService';
+import { MdLocationOn, MdPhone, MdEmail, MdLocalShipping, MdAccessTime, MdCheckCircle, MdCancel, MdReceipt, MdHolidayVillage, MdShoppingCart, MdLocalOffer, MdCardGiftcard } from 'react-icons/md';
+import { formatCurrency } from '@/utils/formatters';
+import PersonalizarProdutoModal from '../../../pages/clientes/ProdutosClientes/PersonalizarProduto/PersonalizarProdutoModal';
 
 const DIAS_SEMANA = {
   0: 'Segunda',
@@ -21,6 +24,15 @@ const HomeClientes = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isCartPage = location.pathname === '/clientes/carrinho';
+  const [promocoes, setPromocoes] = useState([]);
+  const [loadingPromocoes, setLoadingPromocoes] = useState(true);
+
+  // Estado para fluxo de personalização de promoção
+  const [personalizandoPromocao, setPersonalizandoPromocao] = useState(null); // { promo, etapas: [], etapaAtual: 0, personalizados: [] }
+  const [personalizarModalAberto, setPersonalizarModalAberto] = useState(false);
+  const [produtoAtual, setProdutoAtual] = useState(null);
+  const [escolhendoBrinde, setEscolhendoBrinde] = useState(false);
+  const [brindeEscolhido, setBrindeEscolhido] = useState(null);
 
   useEffect(() => {
     const carregarConfiguracao = async () => {
@@ -32,6 +44,21 @@ const HomeClientes = () => {
       }
     };
     carregarConfiguracao();
+  }, []);
+
+  useEffect(() => {
+    const carregarPromocoes = async () => {
+      try {
+        setLoadingPromocoes(true);
+        const data = await promotionService.listPromotions();
+        setPromocoes(Array.isArray(data) ? data : (data.results || []));
+      } catch (error) {
+        setPromocoes([]);
+      } finally {
+        setLoadingPromocoes(false);
+      }
+    };
+    carregarPromocoes();
   }, []);
 
   // Carregar carrinho do localStorage ao iniciar
@@ -136,6 +163,100 @@ const HomeClientes = () => {
   // Lógica para horários
   const abertoAgora = configuracao?.opening_hours ? isOpenNow(configuracao.opening_hours) : false;
 
+  // Função para iniciar o fluxo de personalização de promoção
+  const iniciarPersonalizacaoPromocao = (promo) => {
+    // Expandir os itens conforme a quantidade
+    const etapasProdutos = promo.items.flatMap(item =>
+      Array.from({ length: item.quantity }).map(() => ({ ...item.product, quantidade: 1 }))
+    );
+    setPersonalizandoPromocao({
+      promo,
+      etapas: etapasProdutos,
+      etapaAtual: 0,
+      personalizados: []
+    });
+    setProdutoAtual(etapasProdutos[0]);
+    setPersonalizarModalAberto(true);
+    setEscolhendoBrinde(false);
+    setBrindeEscolhido(null);
+  };
+
+  // Função chamada ao finalizar a personalização de um produto da promoção
+  const handlePersonalizarProdutoPromo = (produtoPersonalizado) => {
+    setPersonalizandoPromocao(prev => {
+      if (!prev) return null;
+      const { promo, etapas, etapaAtual, personalizados } = prev;
+      const novosPersonalizados = [...personalizados, produtoPersonalizado];
+      const proximaEtapa = etapaAtual + 1;
+      if (proximaEtapa < etapas.length) {
+        // Personalizar próximo produto
+        setProdutoAtual(etapas[proximaEtapa]);
+        setPersonalizarModalAberto(true);
+        return { ...prev, etapaAtual: proximaEtapa, personalizados: novosPersonalizados };
+      } else if (promo.rewards && promo.rewards.length > 1 && !brindeEscolhido) {
+        // Se há mais de um brinde, abrir escolha de brinde
+        setEscolhendoBrinde(true);
+        setPersonalizarModalAberto(false);
+        return { ...prev, etapaAtual: proximaEtapa, personalizados: novosPersonalizados };
+      } else if ((promo.rewards && promo.rewards.length === 1) || brindeEscolhido) {
+        // Se já personalizou o brinde, finalizar fluxo
+        if (etapaAtual >= etapas.length) {
+          // Adiciona ao carrinho um único item de promoção
+          adicionarAoCarrinho({
+            tipo: 'promocao',
+            promocaoId: promo.id,
+            name: promo.name,
+            description: promo.description,
+            produtos: novosPersonalizados.slice(0, etapas.length),
+            brinde: novosPersonalizados.length > etapas.length ? novosPersonalizados[novosPersonalizados.length - 1] : null,
+            price: promo.price,
+            quantidade: 1
+          });
+          setPersonalizarModalAberto(false);
+          setPersonalizandoPromocao(null);
+          setProdutoAtual(null);
+          setEscolhendoBrinde(false);
+          setBrindeEscolhido(null);
+          return null;
+        }
+        // Personalizar o brinde escolhido (ou único)
+        const brinde = brindeEscolhido ? promo.rewards.find(r => r.product.id === brindeEscolhido) : promo.rewards[0];
+        if (brinde) {
+          setProdutoAtual({ ...brinde.product, quantidade: 1 });
+          setPersonalizarModalAberto(true);
+          setEscolhendoBrinde(false);
+          return { ...prev, etapaAtual: proximaEtapa, personalizados: novosPersonalizados };
+        }
+      }
+      // Fallback: finaliza
+      adicionarAoCarrinho({
+        tipo: 'promocao',
+        promocaoId: promo.id,
+        name: promo.name,
+        description: promo.description,
+        produtos: novosPersonalizados.slice(0, etapas.length),
+        brinde: novosPersonalizados.length > etapas.length ? novosPersonalizados[novosPersonalizados.length - 1] : null,
+        price: promo.price,
+        quantidade: 1
+      });
+      setPersonalizarModalAberto(false);
+      setPersonalizandoPromocao(null);
+      setProdutoAtual(null);
+      setEscolhendoBrinde(false);
+      setBrindeEscolhido(null);
+      return null;
+    });
+  };
+
+  // Função para escolher o brinde
+  const handleEscolherBrinde = (productId) => {
+    setBrindeEscolhido(productId);
+    // Após escolher, abrir personalização do brinde
+    setProdutoAtual(personalizandoPromocao.promo.rewards.find(r => r.product.id === productId).product);
+    setPersonalizarModalAberto(true);
+    setEscolhendoBrinde(false);
+  };
+
   return (
     <div className="home-clientes-container">
       {/* Novo header tipo cardápio digital */}
@@ -200,6 +321,140 @@ const HomeClientes = () => {
           </div>
         )}
       </header>
+
+      {/* PROMOÇÕES */}
+      <div className="promocoes-clientes-list">
+        <h2>Promoções Especiais</h2>
+        {loadingPromocoes ? (
+          <div className="promocao-card__loading">
+            <div>Carregando promoções...</div>
+          </div>
+        ) : promocoes.length === 0 ? (
+          <div className="promocao-card__empty">
+            <MdLocalOffer style={{ fontSize: 24, marginBottom: 8, color: '#666' }} />
+            <p>Nenhuma promoção ativa no momento.</p>
+          </div>
+        ) : (
+          <div className="promocoes-grid">
+            {promocoes.map((promo) => (
+              <div key={promo.id} className="promocao-card">
+                {promo.image && (
+                  <div className="promocao-card__image-wrapper">
+                    <img 
+                      src={promo.image} 
+                      alt={promo.name}
+                      className="promocao-card__image"
+                    />
+                  </div>
+                )}
+                <div className="promocao-card__content">
+                  <div className="promocao-card__header">
+                    <h3 className="promocao-card__title">{promo.name}</h3>
+                    <p className="promocao-card__description">{promo.description}</p>
+                  </div>
+
+                  <div className="promocao-card__price-row">
+                    <span className="promocao-card__price">{formatCurrency(promo.price)}</span>
+                    <span className="promocao-card__savings">
+                      Economia de {formatCurrency(promo.savings_amount)}
+                    </span>
+                  </div>
+                  
+                  <div className="promocao-card__items">
+                    <div className="promocao-card__items-title">
+                      <MdShoppingCart style={{ fontSize: 20 }} />
+                      Inclui
+                    </div>
+                    <ul className="promocao-card__items-list">
+                      {promo.items?.map(item => (
+                        <li key={item.id}>
+                          {item.quantity}x {item.product?.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {promo.rewards?.length > 0 && (
+                    <div className="promocao-card__items">
+                      <div className="promocao-card__items-title">
+                        <MdCardGiftcard style={{ fontSize: 20 }} />
+                        Brindes
+                      </div>
+                      <ul className="promocao-card__items-list">
+                        {promo.rewards.map(reward => (
+                          <li key={reward.id}>{reward.product?.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <button
+                    className="promocao-card__button"
+                    onClick={() => iniciarPersonalizacaoPromocao(promo)}
+                  >
+                    Adicionar ao carrinho
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* MODAL DE ESCOLHA DE BRINDE */}
+      {personalizandoPromocao && escolhendoBrinde && personalizandoPromocao.promo.rewards?.length > 1 && (
+        <div className="personalizar-modal-overlay" style={{zIndex: 9999}}>
+          <div className="personalizar-modal" style={{maxWidth: 400}}>
+            <div className="personalizar-modal__header">
+              <h2>Escolha seu brinde</h2>
+              <button className="personalizar-modal__fechar" onClick={() => {
+                setEscolhendoBrinde(false);
+                setPersonalizandoPromocao(null);
+                setProdutoAtual(null);
+                setBrindeEscolhido(null);
+              }}>×</button>
+            </div>
+            <div className="personalizar-modal__body">
+              {personalizandoPromocao.promo.rewards.map(reward => (
+                <button
+                  key={reward.id}
+                  style={{ display: 'block', width: '100%', margin: '12px 0', padding: 16, borderRadius: 8, border: '1px solid #1976d2', background: '#fff', color: '#1976d2', fontWeight: 600, fontSize: 18, cursor: 'pointer' }}
+                  onClick={() => handleEscolherBrinde(reward.product.id)}
+                >
+                  {reward.product?.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE PERSONALIZAÇÃO DE PROMOÇÃO */}
+      {personalizandoPromocao && produtoAtual && !escolhendoBrinde && (
+        <PersonalizarProdutoModal
+          produto={produtoAtual}
+          aberto={personalizarModalAberto}
+          onFechar={() => {
+            setPersonalizarModalAberto(false);
+            setPersonalizandoPromocao(null);
+            setProdutoAtual(null);
+            setEscolhendoBrinde(false);
+            setBrindeEscolhido(null);
+          }}
+          onAdicionar={handlePersonalizarProdutoPromo}
+          etapaPromocao={(() => {
+            if (!personalizandoPromocao) return undefined;
+            const { etapas, etapaAtual, promo } = personalizandoPromocao;
+            // Se está personalizando brinde
+            if (promo.rewards && promo.rewards.length > 0 && etapaAtual >= etapas.length) {
+              return { atual: 1, total: 1, isBrinde: true };
+            }
+            // Personalizando produto
+            return { atual: etapaAtual + 1, total: etapas.length, isBrinde: false };
+          })()}
+        />
+      )}
+
       {/* Área principal do cardápio */}
       <main className="home-clientes-cardapio">
         <h2 className="home-clientes-cardapio__titulo">Cardápio</h2>

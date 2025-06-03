@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './personalizarProdutoModal.css';
 import { produtosClienteService } from '../../../../services/clientes/produtosCliente';
 
-const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) => {
+const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar, etapaPromocao }) => {
   const [ingredientes, setIngredientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,7 +111,9 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
       ingredientes: ingredientesSelecionados,
       price: parseFloat(calcularPrecoTotal())
     });
-    onFechar();
+    if (!etapaPromocao) {
+      onFechar();
+    }
   };
 
   // Função para saber se o grupo é escolha única (radio) ou múltipla (checkbox)
@@ -173,7 +175,17 @@ const PersonalizarProdutoModal = ({ produto, aberto, onFechar, onAdicionar }) =>
     <div className="personalizar-modal-overlay" onClick={onFechar}>
       <div className="personalizar-modal" onClick={e => e.stopPropagation()}>
         <div className="personalizar-modal__header">
-          <h2>Personalizar {produto.name}</h2>
+          {etapaPromocao ? (
+            <>
+              {etapaPromocao.isBrinde ? (
+                <h2>Personalize seu brinde</h2>
+              ) : (
+                <h2>Personalize sua salada {etapaPromocao.atual} de {etapaPromocao.total}</h2>
+              )}
+            </>
+          ) : (
+            <h2>Personalizar {produto.name}</h2>
+          )}
           <button className="personalizar-modal__fechar" onClick={onFechar}>×</button>
         </div>
         <div className="personalizar-modal__body">

@@ -177,6 +177,98 @@ const FinalizarPedido = () => {
           return;
         }
       }
+      const flattenItems = [];
+      itens.forEach(item => {
+        if (item.tipo === 'promocao' && Array.isArray(item.produtos)) {
+          // Processa produtos da promoção
+          item.produtos.forEach(prodPromo => {
+            flattenItems.push({
+              product_id: prodPromo.id,
+              product_name: prodPromo.nome || prodPromo.name,
+              quantity: prodPromo.quantidade || 1,
+              unit_price: prodPromo.preco || prodPromo.price || 0,
+              notes: prodPromo.observacoes || '',
+              ingredients: (prodPromo.ingredientes || prodPromo.adicionais || []).map(ing => ({
+                ingredient: ing.id,
+                product_id: prodPromo.id,
+                is_added: true,
+                price: ing.price || 0
+              })),
+              item_type: 'promotion',
+              promotion_id: item.promocaoId || item.promotionId || null
+            });
+
+            // Adiciona o brinde se existir na promoção (por produto)
+            if (prodPromo.brinde) {
+              flattenItems.push({
+                product_id: prodPromo.brinde.id,
+                product_name: prodPromo.brinde.nome || prodPromo.brinde.name,
+                quantity: prodPromo.brinde.quantidade || 1,
+                unit_price: 0, // Brinde é sempre gratuito
+                notes: 'Brinde da promoção',
+                ingredients: (prodPromo.brinde.ingredientes || prodPromo.brinde.adicionais || []).map(ing => ({
+                  ingredient: ing.id,
+                  product_id: prodPromo.brinde.id,
+                  is_added: true,
+                  price: 0 // Ingredientes do brinde também são gratuitos
+                })),
+                item_type: 'reward',
+                promotion_id: item.promocaoId || item.promotionId || null
+              });
+            }
+          });
+          // Adiciona o brinde se existir na promoção (nível da promoção)
+          if (item.brinde) {
+            flattenItems.push({
+              product_id: item.brinde.id,
+              product_name: item.brinde.nome || item.brinde.name,
+              quantity: item.brinde.quantidade || 1,
+              unit_price: 0, // Brinde é sempre gratuito
+              notes: 'Brinde da promoção',
+              ingredients: (item.brinde.ingredientes || item.brinde.adicionais || []).map(ing => ({
+                ingredient: ing.id,
+                product_id: item.brinde.id,
+                is_added: true,
+                price: 0 // Ingredientes do brinde também são gratuitos
+              })),
+              item_type: 'reward',
+              promotion_id: item.promocaoId || item.promotionId || null
+            });
+          }
+        } else if (item.tipo === 'brinde') {
+          // Processa itens que são brindes diretos
+          flattenItems.push({
+            product_id: item.id,
+            product_name: item.nome || item.name,
+            quantity: item.quantidade || 1,
+            unit_price: 0, // Brinde é sempre gratuito
+            notes: 'Brinde',
+            ingredients: (item.ingredientes || item.adicionais || []).map(ing => ({
+              ingredient: ing.id,
+              product_id: item.id,
+              is_added: true,
+              price: 0 // Ingredientes do brinde também são gratuitos
+            })),
+            item_type: 'reward'
+          });
+        } else {
+          // Processa itens regulares
+          flattenItems.push({
+            product_id: item.id,
+            product_name: item.nome || item.name,
+            quantity: item.quantidade || 1,
+            unit_price: getPreco(item),
+            notes: item.observacoes || '',
+            ingredients: (item.ingredientes || item.adicionais || []).map(ing => ({
+              ingredient: ing.id,
+              product_id: item.id,
+              is_added: true,
+              price: ing.price || 0
+            })),
+            item_type: 'regular'
+          });
+        }
+      });
       const pedidoData = {
         customer_name: formData.nome,
         customer_phone: formData.telefone,
@@ -184,19 +276,7 @@ const FinalizarPedido = () => {
         total_amount: calcularTotal(),
         payment_method: formData.payment_method,
         change_amount: formData.payment_method === 'dinheiro' ? parseFloat(formData.change_amount) : null,
-        items: itens.map(item => ({
-          product_id: item.id,
-          product_name: item.nome || item.name,
-          quantity: item.quantidade || 1,
-          unit_price: getPreco(item),
-          notes: item.observacoes || '',
-          ingredients: (item.ingredientes || item.adicionais || []).map(ing => ({
-            ingredient: ing.id,
-            product_id: item.id,
-            is_added: true,
-            price: ing.price || 0
-          }))
-        }))
+        items: flattenItems
       };
 
       console.log('pedidoData:', pedidoData);

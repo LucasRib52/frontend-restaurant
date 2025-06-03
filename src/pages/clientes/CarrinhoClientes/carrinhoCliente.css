@@ -468,3 +468,47 @@ body {
   background: #eaf6ff;
   transform: translateY(-2px) scale(1.03);
 }
+
+.carrinho-cliente__item--brinde {
+  background-color: #f8f9fa;
+  border: 1px dashed #28a745;
+  position: relative;
+}
+
+.carrinho-cliente__item--brinde::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(40, 167, 69, 0.05) 25%, transparent 25%, transparent 50%, rgba(40, 167, 69, 0.05) 50%, rgba(40, 167, 69, 0.05) 75%, transparent 75%, transparent);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.carrinho-cliente__item-brinde-tag {
+  display: inline-block;
+  background-color: #28a745;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.carrinho-cliente__item--brinde .carrinho-cliente__item-preco {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.carrinho-cliente__item--brinde .carrinho-cliente__quantidade-controle button {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.carrinho-cliente__item--brinde .carrinho-cliente__item-subtotal {
+  color: #28a745;
+  font-weight: bold;
+}

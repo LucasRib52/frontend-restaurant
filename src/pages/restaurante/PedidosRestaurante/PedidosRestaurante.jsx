@@ -130,27 +130,24 @@ const PedidosRestaurante = () => {
   const formatarPedidoParaImpressao = (pedido) => {
     const data = new Date(pedido.created_at).toLocaleString('pt-BR');
     const linhas = [
-      '--------------------------------',
+      '-------------------------------',
       `PEDIDO #${pedido.id}`,
-      '--------------------------------',
-      `CLIENTE: ${pedido.customer_name}`,
-      `TEL: ${pedido.customer_phone}`,
-      `END: ${pedido.customer_address}`,
-      ''
+      `Cliente: ${pedido.customer_name}   Tel: ${pedido.customer_phone}`,
+      `Endereço: ${pedido.customer_address}`,
+      '',
+      'Itens:'
     ];
 
-    // Adiciona os itens do pedido
     if (pedido.items && Array.isArray(pedido.items)) {
       pedido.items.forEach((item, index) => {
-        // Nome do item com quantidade se for maior que 1
-        const nomeProduto = item.product_name.toUpperCase();
-        const itemLine = item.quantity > 1 
-          ? `${index + 1}. ***${nomeProduto}*** (${item.quantity}x)`
-          : `${index + 1}. ***${nomeProduto}***`;
+        let nome = item.product_name || 'Produto';
+        if (item.item_type === 'promotion') nome += ' [Promoção]';
+        if (item.item_type === 'reward') nome += ' [Brinde]';
+        const itemLine = `${index + 1}. ${nome}`;
         linhas.push(itemLine);
 
-        // Ingredientes agrupados por grupo
-        if (item.ingredients && item.ingredients.length > 0) {
+        // Ingredientes só para não-brinde
+        if (item.item_type !== 'reward' && item.ingredients && item.ingredients.length > 0) {
           const grupos = item.ingredients.reduce((acc, ing) => {
             const group = ing.group_name || 'Outros';
             if (!acc[group]) acc[group] = [];
@@ -161,38 +158,15 @@ const PedidosRestaurante = () => {
             linhas.push(`   - ${grupo}: ${ings.join(', ')}`);
           });
         }
-
-        // Observações
-        if (item.notes) {
-          linhas.push(`   Obs: ${item.notes}`);
-        }
-
-        // Linha em branco entre itens
-        linhas.push('');
       });
     }
 
-    // Adiciona o total e forma de pagamento
     linhas.push(
       '',
-      `TOTAL: R$ ${Number(pedido.total_amount).toFixed(2)}`,
-      ''
-    );
-
-    // Adiciona forma de pagamento e troco se for em dinheiro
-    if (pedido.payment_method === 'dinheiro') {
-      linhas.push('Forma de Pagamento: Dinheiro');
-      if (pedido.change_amount && Number(pedido.change_amount) > 0) {
-        linhas.push(`Troco para: R$ ${Number(pedido.change_amount).toFixed(2)}`);
-      }
-    } else {
-      linhas.push(`Forma de Pagamento: ${getPaymentMethodLabel(pedido.payment_method)}`);
-    }
-
-    linhas.push(
-      '',
+      `Total: R$ ${Number(pedido.total_amount).toFixed(2)}`,
+      `Pagamento: ${getPaymentMethodLabel(pedido.payment_method)}`,
       `Data: ${data}`,
-      '--------------------------------'
+      '-------------------------------'
     );
 
     return linhas.join('\n');

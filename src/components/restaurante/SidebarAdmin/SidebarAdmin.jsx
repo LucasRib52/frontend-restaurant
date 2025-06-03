@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaList, FaUsers, FaCog, FaShoppingBag, FaClipboardList, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaList, FaUsers, FaCog, FaShoppingBag, FaClipboardList, FaSignOutAlt, FaGift } from 'react-icons/fa';
 import './sidebarAdmin.css';
 import authService from '../../../services/authService';
 
@@ -27,6 +27,11 @@ const SidebarAdmin = () => {
       path: '/restaurante/pedidos',
       icon: <FaClipboardList />,
       label: 'Pedidos'
+    },
+    {
+      path: '/restaurante/promocoes',
+      icon: <FaGift />,
+      label: 'Promoções'
     },
     {
       path: '/restaurante/configuracoes',

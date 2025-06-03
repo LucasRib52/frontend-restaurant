@@ -62,6 +62,8 @@ const CarrinhoCliente = ({ itens: propsItens, onRemoverItem: propsOnRemoverItem,
 
   const calcularTotal = () => {
     return itens.reduce((total, item) => {
+      // Não inclui brindes no total
+      if (item.tipo === 'brinde') return total;
       const preco = getPreco(item);
       return total + ((preco || 0) * (item.quantidade || 1));
     }, 0).toFixed(2);
@@ -120,11 +122,14 @@ const CarrinhoCliente = ({ itens: propsItens, onRemoverItem: propsOnRemoverItem,
           </div>
         ) : (
           itens.map((item, index) => (
-            <div key={index} className="carrinho-cliente__item">
+            <div key={index} className={`carrinho-cliente__item ${item.tipo === 'brinde' ? 'carrinho-cliente__item--brinde' : ''}`}>
               <div className="carrinho-cliente__item-info">
-                <h3>{item.nome || item.name}</h3>
+                <h3>
+                  {item.nome || item.name}
+                  {item.tipo === 'brinde' && <span className="carrinho-cliente__item-brinde-tag">Brinde</span>}
+                </h3>
                 <p className="carrinho-cliente__item-preco">
-                  R$ {(getPreco(item) || 0).toFixed(2)}
+                  {item.tipo === 'brinde' ? 'Grátis' : `R$ ${(getPreco(item) || 0).toFixed(2)}`}
                 </p>
               </div>
 
@@ -132,26 +137,29 @@ const CarrinhoCliente = ({ itens: propsItens, onRemoverItem: propsOnRemoverItem,
                 <div className="carrinho-cliente__quantidade-controle">
                   <button 
                     onClick={() => atualizarQuantidade(index, item.quantidade - 1)}
-                    disabled={item.quantidade <= 1}
+                    disabled={item.quantidade <= 1 || item.tipo === 'brinde'}
                   >
                     <FaMinus />
                   </button>
                   <span>{item.quantidade}</span>
                   <button 
                     onClick={() => atualizarQuantidade(index, item.quantidade + 1)}
+                    disabled={item.tipo === 'brinde'}
                   >
                     <FaPlus />
                   </button>
                 </div>
 
                 <div className="carrinho-cliente__item-subtotal">
-                  <span>R$ {calcularSubtotal(item)}</span>
-                  <button 
-                    className="carrinho-cliente__remover-btn"
-                    onClick={() => removerDoCarrinho(index)}
-                  >
-                    <FaTrash />
-                  </button>
+                  <span>{item.tipo === 'brinde' ? 'Grátis' : `R$ ${calcularSubtotal(item)}`}</span>
+                  {item.tipo !== 'brinde' && (
+                    <button 
+                      className="carrinho-cliente__remover-btn"
+                      onClick={() => removerDoCarrinho(index)}
+                    >
+                      <FaTrash />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

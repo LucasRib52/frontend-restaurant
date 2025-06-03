@@ -5,6 +5,7 @@ import LayoutAdmin from '../../components/restaurante/LayoutAdmin/LayoutAdmin';
 import ProdutoRestaurante from './ProdutoRestaurante/ProdutoRestaurante';
 import PedidosRestaurante from './PedidosRestaurante/PedidosRestaurante';
 import ConfiguracaoRestaurante from './ConfiguracaoRestaurante/Configuracao';
+import PromotionsPage from '../PromotionsPage';
 import PrivateRoute from '../../components/PrivateRoute';
 import Login from '../login/Login';
 
@@ -40,6 +41,10 @@ export const restauranteRoutes = [
       {
         path: 'pedidos',
         element: <PedidosRestaurante />
+      },
+      {
+        path: 'promocoes',
+        element: <PromotionsPage />
       },
       {
         path: 'configuracoes',
